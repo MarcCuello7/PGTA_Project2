@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Bibliotecadeclases;
 
 namespace Project2_Code
 {
@@ -23,6 +25,19 @@ namespace Project2_Code
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+
+            openFile.ShowDialog();
+
+            string nombre = openFile.FileName;
+
+            LeerArchivo fichero = new LeerArchivo(nombre);
+
+
         }
     }
 }
