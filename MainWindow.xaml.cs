@@ -32,9 +32,9 @@ namespace Project2_Code
 
             openFile.ShowDialog();
 
-            string nombre = openFile.FileName;
+            string fileName = openFile.FileName;
 
-            LeerArchivo fichero = new LeerArchivo(nombre);
+            LeerArchivo fichero = new LeerArchivo(fileName);
 
 
         }
