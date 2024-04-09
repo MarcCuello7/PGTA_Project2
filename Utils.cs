@@ -27,7 +27,7 @@ namespace Project2_Code
         /// Read a signed short from the stream (big endian)
         /// </summary>
         /// <returns></returns>
-        public short ReadS2be(Stream data)
+        public short ReadS2(Stream data)
         {
             return BitConverter.ToInt16(ReadBytes(2), 0);
         }
@@ -36,7 +36,7 @@ namespace Project2_Code
         /// Read a signed int from the stream (big endian)
         /// </summary>
         /// <returns></returns>
-        public int ReadS4be(Stream data)
+        public int ReadS4(Stream data)
         {
             return BitConverter.ToInt32(ReadBytes(4), 0);
         }
@@ -45,7 +45,7 @@ namespace Project2_Code
         /// Read a signed long from the stream (big endian)
         /// </summary>
         /// <returns></returns>
-        public long ReadS8be(Stream data)
+        public long ReadS8(Stream data)
         {
             return BitConverter.ToInt64(ReadBytes(8), 0);
         }

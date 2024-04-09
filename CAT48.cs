@@ -106,6 +106,37 @@ namespace Project2_Code
         public string GS;
         public string HEADING;
 
+        //Data Item I048/210, Track Quality
+        //No decodification needed
+
+        //Data Item I048/220, Aircraft Address
+        public string ADDRESS;
+
+        //Data Item I048/230, Communications/ACAS Capability and Flight Status
+        public string COM_230;
+        public string STAT_230;
+        public string SI_230;
+        public string MSSC_230;
+        public string ARC_230;
+        public string AIC_230;
+        public string B1A_230;
+        public string B1B_230;
+
+        //Data Item I048/240, Aircraft Identification
+        public string IDENTIFICATION;
+
+        //Data Item I048/250, BDS Register Data
+        public string REP;
+        public string BDSDATA;
+        public string BDS1;
+        public string BDS2;
+
+        //Data Item I048/260, ACAS Resolution Advisory Report
+        //No decodification needed
+
+
+
+
 
         //Enumeration of the category 48 Standard User Application Profile
         enum UAP 
