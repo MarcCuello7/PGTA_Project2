@@ -11,8 +11,8 @@ namespace Project2_Code
         public BitArray FSPEC;
 
         //Data Item I048/010, Data Source Identifier
-        public int SAC;
-        public int SIC;
+        public byte SAC;
+        public byte SIC;
 
         //Data Item I048/020, Target Report Descriptor
         public string TYP_020;
@@ -134,7 +134,11 @@ namespace Project2_Code
         //Data Item I048/260, ACAS Resolution Advisory Report
         //No decodification needed
 
+        //SP-Data Item, Special Purpose Field
+        //No decodification needed
 
+        //RE-Data Item, Reserved Expansion Field
+        //No decodification needed
 
 
 
@@ -175,54 +179,68 @@ namespace Project2_Code
         }
 
 
+
         //METHODS
-        private int ParseFSPEC(Stream data)
-        {
-            int length = 0;
+        private void ParseFSPEC(BinaryReader data)
+        {            
             byte[] FSPEC = new byte[] {0, 0, 0, 0};
             for (int i = 0; i < FSPEC.Length; i++)
             {
-                FSPEC[i] = data[i];
-                if ((data[i] & 1) == 0)
-                {
-                    length = i + 1;
+                FSPEC[i] = Utils.ReadU1(data);
+                if ((FSPEC[i] & 1) == 0)
+                {                    
                     break;
                 }            
             }
-            this.FSPEC = new BitArray(FSPEC);
-            return length;
+            this.FSPEC = new BitArray(FSPEC);            
         }
 
-        private void ParseI048_010(Stream data)
-        {
-            this.SAC = (int)data.ReadByte();
-            this.SIC = (int)data.ReadByte();
-        }
+
 
         //CONSTRUCTOR
-        public CAT48(Stream data)
+        public CAT48(BinaryReader data)
         {
-            int pos = 0;
-            pos += ParseFSPEC(data[pos..(pos+4)]);
-
-            //Check
-          
-            if (this.FSPEC[(int)UAP.I048_010])
+            List<Action<BinaryReader>> DataItemActions = new List<Action<BinaryReader>>
             {
-                ParseI048_010
-                
-            }
-        
+                ParseI048_010,      ParseI048_140,      ParseI048_020,      ParseI048_040, 
+                ParseI048_070,      ParseI048_090,      ParseI048_130,      ParseI048_220,
+                ParseI048_240,      ParseI048_250,      ParseI048_161,      ParseI048_042,
+                ParseI048_200,      ParseI048_170,      SkipFixedAction(4), SkipVariable,
+                SkipFixedAction(2), SkipFixedAction(4), ParseI048_110,      ParseI048_120,
+                ParseI048_230,      SkipFixedAction(7), SkipFixedAction(1), SkipFixedAction(2),
+                SkipFixedAction(1), SkipFixedAction(2), ParseSP_DI,         ParseRE_DI,
+            };
+                        
+            ParseFSPEC(data);            
+            for (int i = 0; i < this.FSPEC.Length; i++)
+            {
+                if ((i % 8) == 7 && !this.FSPEC[i])
+                {
+                    break;
+                }
+                else if (this.FSPEC[i])
+                {
+                    DataItemActions[i](data);
+                }
+            }        
         }
 
+        //HELPER FUNCTIONS
+        public Action<BinaryReader> SkipFixedAction(int count)
+        {
+            return (BinaryReader data) => data.ReadBytes(count);
+        }
 
+        public void SkipVariable(BinaryReader data)
+        {
+            while ((data.ReadByte() & 1) == 1) ;
+        }
 
-
-
-
-
-
-
-
+        //DATA ITEMS FUNCTIONS
+        private void ParseI048_010(BinaryReader data)
+        {
+            this.SAC = Utils.ReadU1(data);
+            this.SIC = Utils.ReadU1(data);
+        }
     }
 }

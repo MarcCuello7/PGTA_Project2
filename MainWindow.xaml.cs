@@ -35,7 +35,7 @@ namespace Project2_Code
 
             string fileName = openFile.FileName;
 
-            LeerArchivo fichero = new LeerArchivo(fileName);
+            FileParser fichero = new FileParser(fileName);
 
 
         }
