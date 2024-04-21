@@ -15,27 +15,27 @@ namespace Project2_Code
         public byte SIC;
 
         //Data Item I048/020, Target Report Descriptor
-        public string TYP_020;
-        public string SIM_020;
-        public string RDP_020;
-        public string SPI_020;
-        public string RAB_020;
-        public string TST_020;
-        public string ERR_020;
-        public string XPP_020;
-        public string ME_020;
-        public string MI_020;
-        public string FOEFRI_020;
-        public string ADSB_020;
-        public string SCN_020;
-        public string PAI_020;
+        public byte TYP_020;
+        public bool SIM_020;
+        public bool RDP_020;
+        public bool SPI_020;
+        public bool RAB_020;
+        public bool TST_020;
+        public bool ERR_020;
+        public bool XPP_020;
+        public bool ME_020;
+        public bool MI_020;
+        public byte FOEFRI_020;
+        public byte ADSB_020;
+        public byte SCN_020;
+        public byte PAI_020;
 
         //Data Item I048/030, Warning/Error Conditions and Target Classification
         //No decodification needed
 
         //Data Item I048/040, Measured Position in Polar Co-ordinates
-        public string RHO;
-        public string THETA;
+        public double RHO;
+        public double THETA;
 
         //Data Item I048/042, Calculated Position in Cartesian Co-ordinates
         public string LAT;
@@ -86,7 +86,7 @@ namespace Project2_Code
         public string APD_130;
 
         //Data Item I048/140, Time of Day
-        public string TIME;
+        public double TIME;
 
         //Data Item I048/161, Track Number
         public string TN;
@@ -242,5 +242,123 @@ namespace Project2_Code
             this.SAC = Utils.ReadU1(data);
             this.SIC = Utils.ReadU1(data);
         }
+
+        private void ParseI048_140(BinaryReader data)
+        {
+            byte[] timeInBytes = Utils.ReadBytesBigEndian(data, 3);
+            this.TIME = ((timeInBytes[0] << 16) | (timeInBytes[1] << 8) | timeInBytes[2]) / 128.0;
+        }
+        
+        private void ParseI048_020(BinaryReader data)
+        {
+            byte octet1 = Utils.ReadU1(data);
+            this.TYP_020 = Utils.extractBits(octet1, 5, 7);
+            this.SIM_020 = Utils.extractBool(octet1, 4);
+            this.RDP_020 = Utils.extractBool(octet1, 3);
+            this.SPI_020 = Utils.extractBool(octet1, 2);
+            this.RAB_020 = Utils.extractBool(octet1, 1);
+            if (!Utils.extractBool(octet1, 0)) 
+            {
+                return;
+            }
+
+            byte octet2 = Utils.ReadU1(data);
+            this.TST_020 = Utils.extractBool(octet2, 7);
+            this.ERR_020 = Utils.extractBool(octet2, 6);
+            this.XPP_020 = Utils.extractBool(octet2, 5);
+            this.ME_020 = Utils.extractBool(octet2, 4);
+            this.MI_020 = Utils.extractBool(octet2, 3);
+            this.FOEFRI_020 = Utils.extractBits(octet1, 1, 2);
+            if (!Utils.extractBool(octet2, 0))
+            {
+                return;
+            }
+
+            byte octet3 = Utils.ReadU1(data);
+            this.ADSB_020 = Utils.extractBits(octet1, 6, 7);
+            this.SCN_020 = Utils.extractBits(octet1, 4, 5);
+            this.PAI_020 = Utils.extractBits(octet1, 2, 3);
+        }
+
+        private void ParseI048_040(BinaryReader data)
+        {
+            this.RHO = Utils.ReadU2(data) / 256.0;
+            this.THETA = Utils.ReadU2(data) * (360.0 / Math.Pow(2, 16));
+        }
+        //NOT DONE FIX
+        private void ParseI048_070(BinaryReader data)
+        {
+            data.ReadBytes(2);
+        }
+        //NOT DONE FIX
+        private void ParseI048_090(BinaryReader data)
+        {
+            data.ReadBytes(2);
+        }
+        //NOT DONE VARIABLE
+        private void ParseI048_130(BinaryReader data)
+        {
+            
+        }
+        //NOT DONE FIX
+        private void ParseI048_220(BinaryReader data)
+        {
+            data.ReadBytes(3);
+        }
+        //NOT DONE FIX
+        private void ParseI048_240(BinaryReader data)
+        {
+            data.ReadBytes(6);
+        }
+        //NOT DONE VARIABLE
+        private void ParseI048_250(BinaryReader data)
+        {
+            
+        }
+        //NOT DONE FIX
+        private void ParseI048_161(BinaryReader data)
+        {
+            data.ReadBytes(2);
+        }
+        //NOT DONE FIX
+        private void ParseI048_042(BinaryReader data)
+        {
+            data.ReadBytes(2);
+        }
+        //NOT DONE FIX
+        private void ParseI048_200(BinaryReader data)
+        {
+            data.ReadBytes(4);
+        }
+        //NOT DONE VARIABLE
+        private void ParseI048_170(BinaryReader data)
+        {
+            
+        }
+        //NOT DONE FIX
+        private void ParseI048_110(BinaryReader data)
+        {
+            data.ReadBytes(2);
+        }
+        //NOT, VARIABLE NO SE HACE
+        private void ParseI048_120(BinaryReader data)
+        {
+            
+        }
+        //NOT DONE FIX
+        private void ParseI048_230(BinaryReader data)
+        {
+            data.ReadBytes(2);
+        }
+        //NOT, VARIABLE NO SE HACE
+        private void ParseSP_DI(BinaryReader data)
+        {
+            
+        }
+        //NOT, VARIABLE NO SE HACE
+        private void ParseRE_DI(BinaryReader data)
+        {
+            
+        }        
     }
 }

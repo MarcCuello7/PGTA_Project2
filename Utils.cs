@@ -114,5 +114,26 @@ namespace Project2_Code
             Array.Reverse(bytes);
             return bytes;
         }
+
+        public static byte extractBits(byte b, byte first, byte last)
+        {
+            byte mask = 0;
+            for (byte i = first; i <= last; i++)
+            {
+                mask |= (byte) (1 << i);
+            }
+            b &= mask;
+            b >>= first;
+            return b;
+        }
+
+        public static bool extractBool(byte b, byte pos)
+        {
+            byte mask = (byte)(1 << pos);
+            b &= mask;
+            b >>= pos;
+
+            return b == 1;
+        }
     }
 }
