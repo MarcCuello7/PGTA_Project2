@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Globalization;
+using System.Collections;
 
 namespace Project2_Code
 {
@@ -115,7 +111,7 @@ namespace Project2_Code
             return bytes;
         }
 
-        public static byte extractBits(byte b, byte first, byte last)
+        public static byte ExtractBits(byte b, byte first, byte last)
         {
             byte mask = 0;
             for (byte i = first; i <= last; i++)
@@ -127,7 +123,7 @@ namespace Project2_Code
             return b;
         }
 
-        public static bool extractBool(byte b, byte pos)
+        public static bool ExtractBool(byte b, byte pos)
         {
             byte mask = (byte)(1 << pos);
             b &= mask;
@@ -135,15 +131,33 @@ namespace Project2_Code
 
             return b == 1;
         }
-        public static bool extractBitsTwoBytes(byte b1, byte num1, byte b2, byte num2)
+
+        public static byte ExtractU1(byte[] bytes, int first, int length)
         {
-            byte mask = 0;
-            for (byte i = 0; i <= num1-1; i++)
+            byte[] extracted = ExtractBits(bytes, first, length, false);
+            return extracted[0];
+        }
+
+        public static ushort ExtractU2(byte[] bytes, int first, int length)
+        {
+            byte[] extracted = ExtractBits(bytes, first, length, false);
+            return BitConverter.ToUInt16(extracted, 0);
+        }
+
+        public static byte[] ExtractBits(byte[] bytes, int first, int length, bool twosComplement)
+        {
+            int nbytes = ((length - 1) / 8) + 1;
+            BitArray bits = new BitArray(bytes);
+            BitArray resultBits = new BitArray(nbytes * 8);
+            if (twosComplement && bits[first + length - 1])
+                resultBits.SetAll(true);
+            for (int i = 0; i < length; i++)
             {
-                mask |= (byte)(1 << i);
+                resultBits[i] = bits[first + i];
             }
-            b1 &= mask;
-            b1 >>= 0;
+            byte[] result = new byte[nbytes];
+            resultBits.CopyTo(result, 0);
+            return result;
         }
     }
 }

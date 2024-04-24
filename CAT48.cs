@@ -89,7 +89,7 @@ namespace Project2_Code
         public double TIME;
 
         //Data Item I048/161, Track Number
-        public byte[] TN;
+        public ushort TN;
 
         //Data Item I048/170, Track Status
         public bool CNF_170;
@@ -237,47 +237,48 @@ namespace Project2_Code
         }
 
         //DATA ITEMS FUNCTIONS
+        //DONE
         private void ParseI048_010(BinaryReader data)
         {
             this.SAC = Utils.ReadU1(data);
             this.SIC = Utils.ReadU1(data);
         }
-
+        //DONE
         private void ParseI048_140(BinaryReader data)
         {
             byte[] timeInBytes = Utils.ReadBytesBigEndian(data, 3);
             this.TIME = ((timeInBytes[0] << 16) | (timeInBytes[1] << 8) | timeInBytes[2]) / 128.0;
         }
-        
+        //DONE
         private void ParseI048_020(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
-            this.TYP_020 = Utils.extractBits(octet1, 5, 7);
-            this.SIM_020 = Utils.extractBool(octet1, 4);
-            this.RDP_020 = Utils.extractBool(octet1, 3);
-            this.SPI_020 = Utils.extractBool(octet1, 2);
-            this.RAB_020 = Utils.extractBool(octet1, 1);
-            if (!Utils.extractBool(octet1, 0)) 
+            this.TYP_020 = Utils.ExtractBits(octet1, 5, 7);
+            this.SIM_020 = Utils.ExtractBool(octet1, 4);
+            this.RDP_020 = Utils.ExtractBool(octet1, 3);
+            this.SPI_020 = Utils.ExtractBool(octet1, 2);
+            this.RAB_020 = Utils.ExtractBool(octet1, 1);
+            if (!Utils.ExtractBool(octet1, 0)) 
             {
                 return;
             }
 
             byte octet2 = Utils.ReadU1(data);
-            this.TST_020 = Utils.extractBool(octet2, 7);
-            this.ERR_020 = Utils.extractBool(octet2, 6);
-            this.XPP_020 = Utils.extractBool(octet2, 5);
-            this.ME_020 = Utils.extractBool(octet2, 4);
-            this.MI_020 = Utils.extractBool(octet2, 3);
-            this.FOEFRI_020 = Utils.extractBits(octet1, 1, 2);
-            if (!Utils.extractBool(octet2, 0))
+            this.TST_020 = Utils.ExtractBool(octet2, 7);
+            this.ERR_020 = Utils.ExtractBool(octet2, 6);
+            this.XPP_020 = Utils.ExtractBool(octet2, 5);
+            this.ME_020 = Utils.ExtractBool(octet2, 4);
+            this.MI_020 = Utils.ExtractBool(octet2, 3);
+            this.FOEFRI_020 = Utils.ExtractBits(octet1, 1, 2);
+            if (!Utils.ExtractBool(octet2, 0))
             {
                 return;
             }
 
             byte octet3 = Utils.ReadU1(data);
-            this.ADSB_020 = Utils.extractBits(octet1, 6, 7);
-            this.SCN_020 = Utils.extractBits(octet1, 4, 5);
-            this.PAI_020 = Utils.extractBits(octet1, 2, 3);
+            this.ADSB_020 = Utils.ExtractBits(octet1, 6, 7);
+            this.SCN_020 = Utils.ExtractBits(octet1, 4, 5);
+            this.PAI_020 = Utils.ExtractBits(octet1, 2, 3);
         }
 
         private void ParseI048_040(BinaryReader data)
@@ -290,34 +291,39 @@ namespace Project2_Code
         {
             byte octet1 = Utils.ReadU1(data);
             byte octet2 = Utils.ReadU1(data);
-            this.V_070 = Utils.extractBool(octet1, 7);
-            this.G_070 = Utils.extractBool(octet1, 6);
-            this.L_070 = Utils.extractBool(octet1, 5);            
-            this.MODE3AREPLY = [Utils.extractBits(octet1, 0, 4), octet2];
+            this.V_070 = Utils.ExtractBool(octet1, 7);
+            this.G_070 = Utils.ExtractBool(octet1, 6);
+            this.L_070 = Utils.ExtractBool(octet1, 5);            
+            this.MODE3AREPLY = [Utils.ExtractBits(octet1, 0, 4), octet2];
         }
         //NOT DONE FIX //SAME CHARACTERS ON DIFFERENT BYTES
         private void ParseI048_090(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
             byte octet2 = Utils.ReadU1(data);
-            this.V_090 = Utils.extractBool(octet1, 7);
-            this.G_090 = Utils.extractBool(octet1, 6);
-            this.FL = [Utils.extractBits(octet1, 0, 5), octet2];
+            this.V_090 = Utils.ExtractBool(octet1, 7);
+            this.G_090 = Utils.ExtractBool(octet1, 6);
+            this.FL = [Utils.ExtractBits(octet1, 0, 5), octet2];
         }
         //NOT DONE VARIABLE //SUBFIELD
         private void ParseI048_130(BinaryReader data)
         {
             
         }
-        //NOT DONE FIX //HEX
+        //DONE
         private void ParseI048_220(BinaryReader data)
         {
             this.ADDRESS = Utils.ReadBytesBigEndian(data, 3);
         }
-        //NOT DONE FIX //SAME CHARACTERS ON DIFFERENT BYTES
+        //DONE
         private void ParseI048_240(BinaryReader data)
         {
-            this.IDENTIFICATION = Utils.ReadBytesBigEndian(data, 6);
+            byte[] identificationBytes = Utils.ReadBytesBigEndian(data, 6);
+            this.IDENTIFICATION = new byte[8];
+            for (int i = 0; i < 8; i++)
+            {
+                IDENTIFICATION[7-i] = Utils.ExtractU1(identificationBytes, i * 6, 6);
+            }
         }
         //NOT DONE VARIABLE
         private void ParseI048_250(BinaryReader data)
@@ -327,7 +333,7 @@ namespace Project2_Code
         
         private void ParseI048_161(BinaryReader data)
         {
-            this.TN = Utils.ReadBytesBigEndian(data, 2);
+            this.TN = Utils.ReadU2(data);
         }
         
         private void ParseI048_042(BinaryReader data)
@@ -341,46 +347,46 @@ namespace Project2_Code
             this.GS = Utils.ReadU2(data) * Math.Pow(2, -14);
             this.HEADING = Utils.ReadU2(data) * (360.0 / Math.Pow(2, 16));
         }
-        
+        //DONE
         private void ParseI048_170(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
-            this.CNF_170 = Utils.extractBool(octet1, 7);
-            this.RAD_170 = Utils.extractBits(octet1, 5, 6);
-            this.DOU_170 = Utils.extractBool(octet1, 4);
-            this.MAH_170 = Utils.extractBool(octet1, 3);
-            this.CDM_170 = Utils.extractBits(octet1, 1, 2);
-            if (!Utils.extractBool(octet1, 0))
+            this.CNF_170 = Utils.ExtractBool(octet1, 7);
+            this.RAD_170 = Utils.ExtractBits(octet1, 5, 6);
+            this.DOU_170 = Utils.ExtractBool(octet1, 4);
+            this.MAH_170 = Utils.ExtractBool(octet1, 3);
+            this.CDM_170 = Utils.ExtractBits(octet1, 1, 2);
+            if (!Utils.ExtractBool(octet1, 0))
             {
                 return;
             }
 
             byte octet2 = Utils.ReadU1(data);
-            this.TRE_170 = Utils.extractBool(octet2, 7);
-            this.GHO_170 = Utils.extractBool(octet2, 6);
-            this.SUP_170 = Utils.extractBool(octet2, 5);
-            this.TCC_170 = Utils.extractBool(octet2, 4); 
+            this.TRE_170 = Utils.ExtractBool(octet2, 7);
+            this.GHO_170 = Utils.ExtractBool(octet2, 6);
+            this.SUP_170 = Utils.ExtractBool(octet2, 5);
+            this.TCC_170 = Utils.ExtractBool(octet2, 4); 
         }
         
         private void ParseI048_110(BinaryReader data)
         {
             this.HEIGH3D = Utils.ReadU2(data) * 25.0;
         }
-        
+        //DONE
         private void ParseI048_120(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
-            if (!Utils.extractBool(octet1, 0))
+            if (!Utils.ExtractBool(octet1, 0))
             {
                 return;
             }
 
-            if (Utils.extractBool(octet1, 7))
+            if (Utils.ExtractBool(octet1, 7))
             {
                 data.ReadBytes(2);
             }
 
-            if (Utils.extractBool(octet1, 6))
+            if (Utils.ExtractBool(octet1, 6))
             {
                 byte REP = Utils.ReadU1(data);
                 for (int i = 0; i < REP; i++)
@@ -389,27 +395,27 @@ namespace Project2_Code
                 }
             }            
         }
-        
+        //DONE
         private void ParseI048_230(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
-            this.COM_230 = Utils.extractBits(octet1, 5, 7);
-            this.STAT_230 = Utils.extractBits(octet1, 2, 4);
-            this.SI_230 = Utils.extractBool(octet1, 1);
+            this.COM_230 = Utils.ExtractBits(octet1, 5, 7);
+            this.STAT_230 = Utils.ExtractBits(octet1, 2, 4);
+            this.SI_230 = Utils.ExtractBool(octet1, 1);
             byte octet2 = Utils.ReadU1(data);
-            this.MSSC_230 = Utils.extractBool(octet2, 7);
-            this.ARC_230 = Utils.extractBool(octet2, 6);
-            this.AIC_230 = Utils.extractBool(octet2, 5);
-            this.B1A_230 = Utils.extractBool(octet2, 4);
-            this.B1B_230 = Utils.extractBits(octet2, 0, 3);
+            this.MSSC_230 = Utils.ExtractBool(octet2, 7);
+            this.ARC_230 = Utils.ExtractBool(octet2, 6);
+            this.AIC_230 = Utils.ExtractBool(octet2, 5);
+            this.B1A_230 = Utils.ExtractBool(octet2, 4);
+            this.B1B_230 = Utils.ExtractBits(octet2, 0, 3);
         }
-        //NOT, VARIABLE NO SE HACE
+        //DONE
         private void ParseSP_DI(BinaryReader data)
         {
             byte LEN = Utils.ReadU1(data);
             data.ReadBytes(LEN - 1);
         }
-        
+        //DONE
         private void ParseRE_DI(BinaryReader data)
         {
             byte LEN = Utils.ReadU1(data);
