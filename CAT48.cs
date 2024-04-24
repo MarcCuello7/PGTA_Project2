@@ -38,8 +38,8 @@ namespace Project2_Code
         public double THETA;
 
         //Data Item I048/042, Calculated Position in Cartesian Co-ordinates
-        public string LAT;
-        public string LONG;
+        public double COMPX;
+        public double COMPY;
 
         //Data Item I048/050, Mode-2 Code in Octal Representation
         //No decodification needed
@@ -54,24 +54,24 @@ namespace Project2_Code
         //No decodification needed
 
         //Data Item I048/070, Mode-3/A Code in Octal Representation
-        public string V_070;
-        public string G_070;
-        public string L_070;
-        public string MODE3AREPLY;
+        public bool V_070;
+        public bool G_070;
+        public bool L_070;
+        public byte[] MODE3AREPLY;
 
         //Data Item I048/080, Mode-3/A Code Confidence Indicator
         //No decodification needed
 
         //Data Item I048/090, Flight Level in Binary Representation
-        public string V_090;
-        public string G_090;
-        public string FL;
+        public bool V_090;
+        public bool G_090;
+        public byte[] FL;
 
         //Data Item I048/100, Mode-C Code and Code Confidence Indicator
         //No decodification needed
 
         //Data Item I048/110, Height Measured by a 3D Radar
-        public string HEIGH3D;
+        public double HEIGH3D;
 
         //Data Item I048/120, Radial Doppler Speed
         //No decodification needed
@@ -89,41 +89,41 @@ namespace Project2_Code
         public double TIME;
 
         //Data Item I048/161, Track Number
-        public string TN;
+        public byte[] TN;
 
         //Data Item I048/170, Track Status
-        public string CNF_170;
-        public string RAD_170;
-        public string DOU_170;
-        public string MAH_170;
-        public string CDM_170;
-        public string TRE_170;
-        public string GHO_170;
-        public string SUP_170;
-        public string TCC_170;
+        public bool CNF_170;
+        public byte RAD_170;
+        public bool DOU_170;
+        public bool MAH_170;
+        public byte CDM_170;
+        public bool TRE_170;
+        public bool GHO_170;
+        public bool SUP_170;
+        public bool TCC_170;
 
         //Data Item I048/200, Calculated Track Velocity in Polar Co-ordinates
-        public string GS;
-        public string HEADING;
+        public double GS;
+        public double HEADING;
 
         //Data Item I048/210, Track Quality
         //No decodification needed
 
         //Data Item I048/220, Aircraft Address
-        public string ADDRESS;
+        public byte[] ADDRESS;
 
         //Data Item I048/230, Communications/ACAS Capability and Flight Status
-        public string COM_230;
-        public string STAT_230;
-        public string SI_230;
-        public string MSSC_230;
-        public string ARC_230;
-        public string AIC_230;
-        public string B1A_230;
-        public string B1B_230;
+        public byte COM_230;
+        public byte STAT_230;
+        public bool SI_230;
+        public bool MSSC_230;
+        public bool ARC_230;
+        public bool AIC_230;
+        public bool B1A_230;
+        public byte B1B_230;
 
         //Data Item I048/240, Aircraft Identification
-        public string IDENTIFICATION;
+        public byte[] IDENTIFICATION;
 
         //Data Item I048/250, BDS Register Data
         public string REP;
@@ -285,80 +285,135 @@ namespace Project2_Code
             this.RHO = Utils.ReadU2(data) / 256.0;
             this.THETA = Utils.ReadU2(data) * (360.0 / Math.Pow(2, 16));
         }
-        //NOT DONE FIX
+        //NOT DONE FIX //SAME CHARACTERS ON DIFFERENT BYTES
         private void ParseI048_070(BinaryReader data)
         {
-            data.ReadBytes(2);
+            byte octet1 = Utils.ReadU1(data);
+            byte octet2 = Utils.ReadU1(data);
+            this.V_070 = Utils.extractBool(octet1, 7);
+            this.G_070 = Utils.extractBool(octet1, 6);
+            this.L_070 = Utils.extractBool(octet1, 5);            
+            this.MODE3AREPLY = [Utils.extractBits(octet1, 0, 4), octet2];
         }
-        //NOT DONE FIX
+        //NOT DONE FIX //SAME CHARACTERS ON DIFFERENT BYTES
         private void ParseI048_090(BinaryReader data)
         {
-            data.ReadBytes(2);
+            byte octet1 = Utils.ReadU1(data);
+            byte octet2 = Utils.ReadU1(data);
+            this.V_090 = Utils.extractBool(octet1, 7);
+            this.G_090 = Utils.extractBool(octet1, 6);
+            this.FL = [Utils.extractBits(octet1, 0, 5), octet2];
         }
-        //NOT DONE VARIABLE
+        //NOT DONE VARIABLE //SUBFIELD
         private void ParseI048_130(BinaryReader data)
         {
             
         }
-        //NOT DONE FIX
+        //NOT DONE FIX //HEX
         private void ParseI048_220(BinaryReader data)
         {
-            data.ReadBytes(3);
+            this.ADDRESS = Utils.ReadBytesBigEndian(data, 3);
         }
-        //NOT DONE FIX
+        //NOT DONE FIX //SAME CHARACTERS ON DIFFERENT BYTES
         private void ParseI048_240(BinaryReader data)
         {
-            data.ReadBytes(6);
+            this.IDENTIFICATION = Utils.ReadBytesBigEndian(data, 6);
         }
         //NOT DONE VARIABLE
         private void ParseI048_250(BinaryReader data)
         {
             
         }
-        //NOT DONE FIX
+        
         private void ParseI048_161(BinaryReader data)
         {
-            data.ReadBytes(2);
+            this.TN = Utils.ReadBytesBigEndian(data, 2);
         }
-        //NOT DONE FIX
+        
         private void ParseI048_042(BinaryReader data)
         {
-            data.ReadBytes(2);
+            this.COMPX = Utils.ReadU2(data) / 128.0;
+            this.COMPY = Utils.ReadU2(data) / 128.0;
         }
-        //NOT DONE FIX
+        
         private void ParseI048_200(BinaryReader data)
         {
-            data.ReadBytes(4);
+            this.GS = Utils.ReadU2(data) * Math.Pow(2, -14);
+            this.HEADING = Utils.ReadU2(data) * (360.0 / Math.Pow(2, 16));
         }
-        //NOT DONE VARIABLE
+        
         private void ParseI048_170(BinaryReader data)
         {
-            
+            byte octet1 = Utils.ReadU1(data);
+            this.CNF_170 = Utils.extractBool(octet1, 7);
+            this.RAD_170 = Utils.extractBits(octet1, 5, 6);
+            this.DOU_170 = Utils.extractBool(octet1, 4);
+            this.MAH_170 = Utils.extractBool(octet1, 3);
+            this.CDM_170 = Utils.extractBits(octet1, 1, 2);
+            if (!Utils.extractBool(octet1, 0))
+            {
+                return;
+            }
+
+            byte octet2 = Utils.ReadU1(data);
+            this.TRE_170 = Utils.extractBool(octet2, 7);
+            this.GHO_170 = Utils.extractBool(octet2, 6);
+            this.SUP_170 = Utils.extractBool(octet2, 5);
+            this.TCC_170 = Utils.extractBool(octet2, 4); 
         }
-        //NOT DONE FIX
+        
         private void ParseI048_110(BinaryReader data)
         {
-            data.ReadBytes(2);
+            this.HEIGH3D = Utils.ReadU2(data) * 25.0;
         }
-        //NOT, VARIABLE NO SE HACE
+        
         private void ParseI048_120(BinaryReader data)
         {
-            
+            byte octet1 = Utils.ReadU1(data);
+            if (!Utils.extractBool(octet1, 0))
+            {
+                return;
+            }
+
+            if (Utils.extractBool(octet1, 7))
+            {
+                data.ReadBytes(2);
+            }
+
+            if (Utils.extractBool(octet1, 6))
+            {
+                byte REP = Utils.ReadU1(data);
+                for (int i = 0; i < REP; i++)
+                {
+                    data.ReadBytes(6);
+                }
+            }            
         }
-        //NOT DONE FIX
+        
         private void ParseI048_230(BinaryReader data)
         {
-            data.ReadBytes(2);
+            byte octet1 = Utils.ReadU1(data);
+            this.COM_230 = Utils.extractBits(octet1, 5, 7);
+            this.STAT_230 = Utils.extractBits(octet1, 2, 4);
+            this.SI_230 = Utils.extractBool(octet1, 1);
+            byte octet2 = Utils.ReadU1(data);
+            this.MSSC_230 = Utils.extractBool(octet2, 7);
+            this.ARC_230 = Utils.extractBool(octet2, 6);
+            this.AIC_230 = Utils.extractBool(octet2, 5);
+            this.B1A_230 = Utils.extractBool(octet2, 4);
+            this.B1B_230 = Utils.extractBits(octet2, 0, 3);
         }
         //NOT, VARIABLE NO SE HACE
         private void ParseSP_DI(BinaryReader data)
         {
-            
+            byte LEN = Utils.ReadU1(data);
+            data.ReadBytes(LEN - 1);
         }
-        //NOT, VARIABLE NO SE HACE
+        
         private void ParseRE_DI(BinaryReader data)
         {
-            
+            byte LEN = Utils.ReadU1(data);
+            data.ReadBytes(LEN - 1);
         }        
     }
 }

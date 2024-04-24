@@ -135,5 +135,15 @@ namespace Project2_Code
 
             return b == 1;
         }
+        public static bool extractBitsTwoBytes(byte b1, byte num1, byte b2, byte num2)
+        {
+            byte mask = 0;
+            for (byte i = 0; i <= num1-1; i++)
+            {
+                mask |= (byte)(1 << i);
+            }
+            b1 &= mask;
+            b1 >>= 0;
+        }
     }
 }
