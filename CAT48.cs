@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Text;
 using System.IO;
+using System.Diagnostics;
 
 namespace Project2_Code
 {
@@ -57,7 +57,7 @@ namespace Project2_Code
         public bool V_070;
         public bool G_070;
         public bool L_070;
-        public byte[] MODE3AREPLY;
+        public ushort MODE3AREPLY;
 
         //Data Item I048/080, Mode-3/A Code Confidence Indicator
         //No decodification needed
@@ -65,25 +65,25 @@ namespace Project2_Code
         //Data Item I048/090, Flight Level in Binary Representation
         public bool V_090;
         public bool G_090;
-        public byte[] FL;
+        public double FL;
 
         //Data Item I048/100, Mode-C Code and Code Confidence Indicator
         //No decodification needed
 
         //Data Item I048/110, Height Measured by a 3D Radar
-        public double HEIGH3D;
+        public double HEIGHT3D;
 
         //Data Item I048/120, Radial Doppler Speed
         //No decodification needed
 
         //Data Item I048/130, Radar Plot Characteristics
-        public string SRL_130;
-        public string SRR_130;
-        public string SAM_130;
-        public string PRL_130;
-        public string PAM_130;
-        public string RPD_130;
-        public string APD_130;
+        public double SRL_130;
+        public double SRR_130;
+        public sbyte SAM_130;
+        public double PRL_130;
+        public sbyte PAM_130;
+        public double RPD_130;
+        public double APD_130;
 
         //Data Item I048/140, Time of Day
         public double TIME;
@@ -126,10 +126,8 @@ namespace Project2_Code
         public byte[] IDENTIFICATION;
 
         //Data Item I048/250, BDS Register Data
-        public string REP;
-        public string BDSDATA;
-        public string BDS1;
-        public string BDS2;
+        public byte[][] BDSDATA;
+        public byte[] BDS;
 
         //Data Item I048/260, ACAS Resolution Advisory Report
         //No decodification needed
@@ -186,13 +184,14 @@ namespace Project2_Code
             byte[] FSPEC = new byte[] {0, 0, 0, 0};
             for (int i = 0; i < FSPEC.Length; i++)
             {
-                FSPEC[i] = Utils.ReadU1(data);
-                if ((FSPEC[i] & 1) == 0)
+                FSPEC[3-i] = Utils.ReadU1(data);
+                if ((FSPEC[3-i] & 1) == 0)
                 {                    
                     break;
                 }            
-            }
-            this.FSPEC = new BitArray(FSPEC);            
+            }            
+            this.FSPEC = new BitArray(FSPEC);
+            Utils.ReverseBitArray(this.FSPEC);
         }
 
 
@@ -202,21 +201,22 @@ namespace Project2_Code
         {
             List<Action<BinaryReader>> DataItemActions = new List<Action<BinaryReader>>
             {
-                ParseI048_010,      ParseI048_140,      ParseI048_020,      ParseI048_040, 
-                ParseI048_070,      ParseI048_090,      ParseI048_130,      ParseI048_220,
-                ParseI048_240,      ParseI048_250,      ParseI048_161,      ParseI048_042,
-                ParseI048_200,      ParseI048_170,      SkipFixedAction(4), SkipVariable,
-                SkipFixedAction(2), SkipFixedAction(4), ParseI048_110,      ParseI048_120,
-                ParseI048_230,      SkipFixedAction(7), SkipFixedAction(1), SkipFixedAction(2),
-                SkipFixedAction(1), SkipFixedAction(2), ParseSP_DI,         ParseRE_DI,
+                ParseI048_010,          ParseI048_140,          ParseI048_020,          ParseI048_040, 
+                ParseI048_070,          ParseI048_090,          ParseI048_130,          null, 
+                ParseI048_220,          ParseI048_240,          ParseI048_250,          ParseI048_161,      
+                ParseI048_042,          ParseI048_200,          ParseI048_170,          null, 
+                SkipFixedAction(4),     SkipVariable,           SkipFixedAction(2),     SkipFixedAction(4), 
+                ParseI048_110,          ParseI048_120,          ParseI048_230,          null,       
+                SkipFixedAction(7),     SkipFixedAction(1),     SkipFixedAction(2),     SkipFixedAction(1), 
+                SkipFixedAction(2),     ParseSP_DI,             ParseRE_DI,             null
             };
                         
             ParseFSPEC(data);            
             for (int i = 0; i < this.FSPEC.Length; i++)
-            {
-                if ((i % 8) == 7 && !this.FSPEC[i])
+            {                
+                if ((i % 8) == 7)
                 {
-                    break;
+                    if (!this.FSPEC[i]) break;
                 }
                 else if (this.FSPEC[i])
                 {
@@ -236,20 +236,19 @@ namespace Project2_Code
             while ((data.ReadByte() & 1) == 1) ;
         }
 
-        //DATA ITEMS FUNCTIONS
-        //DONE
+        //DATA ITEMS FUNCTIONS        
         private void ParseI048_010(BinaryReader data)
         {
             this.SAC = Utils.ReadU1(data);
             this.SIC = Utils.ReadU1(data);
-        }
-        //DONE
+        }   
+        
         private void ParseI048_140(BinaryReader data)
         {
-            byte[] timeInBytes = Utils.ReadBytesBigEndian(data, 3);
-            this.TIME = ((timeInBytes[0] << 16) | (timeInBytes[1] << 8) | timeInBytes[2]) / 128.0;
+            byte[] bytes = data.ReadBytes(3);
+            this.TIME = ((bytes[0] << 16) | (bytes[1] << 8) | bytes[2]) / 128.0;
         }
-        //DONE
+        
         private void ParseI048_020(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
@@ -280,55 +279,88 @@ namespace Project2_Code
             this.SCN_020 = Utils.ExtractBits(octet1, 4, 5);
             this.PAI_020 = Utils.ExtractBits(octet1, 2, 3);
         }
-
+        
         private void ParseI048_040(BinaryReader data)
         {
             this.RHO = Utils.ReadU2(data) / 256.0;
             this.THETA = Utils.ReadU2(data) * (360.0 / Math.Pow(2, 16));
         }
-        //NOT DONE FIX //SAME CHARACTERS ON DIFFERENT BYTES
+        
         private void ParseI048_070(BinaryReader data)
         {
-            byte octet1 = Utils.ReadU1(data);
-            byte octet2 = Utils.ReadU1(data);
-            this.V_070 = Utils.ExtractBool(octet1, 7);
-            this.G_070 = Utils.ExtractBool(octet1, 6);
-            this.L_070 = Utils.ExtractBool(octet1, 5);            
-            this.MODE3AREPLY = [Utils.ExtractBits(octet1, 0, 4), octet2];
+            byte[] bytes = Utils.ReadBytesBigEndian(data, 2);            
+            this.V_070 = Utils.ExtractBool(bytes[1], 7);
+            this.G_070 = Utils.ExtractBool(bytes[1], 6);
+            this.L_070 = Utils.ExtractBool(bytes[1], 5);
+            this.MODE3AREPLY = Utils.ExtractU2(bytes, 0, 12);
         }
-        //NOT DONE FIX //SAME CHARACTERS ON DIFFERENT BYTES
+        
         private void ParseI048_090(BinaryReader data)
         {
-            byte octet1 = Utils.ReadU1(data);
-            byte octet2 = Utils.ReadU1(data);
-            this.V_090 = Utils.ExtractBool(octet1, 7);
-            this.G_090 = Utils.ExtractBool(octet1, 6);
-            this.FL = [Utils.ExtractBits(octet1, 0, 5), octet2];
+            byte[] bytes = Utils.ReadBytesBigEndian(data, 2);
+            this.V_090 = Utils.ExtractBool(bytes[1], 7);
+            this.G_090 = Utils.ExtractBool(bytes[1], 6);
+            this.FL = Utils.ExtractS2(bytes, 0, 14) * 0.25;
         }
-        //NOT DONE VARIABLE //SUBFIELD
+        
         private void ParseI048_130(BinaryReader data)
         {
-            
+            byte subfields = Utils.ReadU1(data);            
+            if (Utils.ExtractBool(subfields, 7))
+            {
+                this.SRL_130 = Utils.ReadU1(data) * (360.0 / Math.Pow(2, 13));
+            }
+            if (Utils.ExtractBool(subfields, 6))
+            {
+                this.SRR_130 = Utils.ReadU1(data);
+            }
+            if (Utils.ExtractBool(subfields, 5))
+            {
+                this.SAM_130 = Utils.ReadS1(data);
+            }
+            if (Utils.ExtractBool(subfields, 4))
+            {
+                this.PRL_130 = Utils.ReadU1(data) * (360.0 / Math.Pow(2, 13));
+            }
+            if (Utils.ExtractBool(subfields, 3))
+            {
+                this.PAM_130 = Utils.ReadS1(data);
+            }
+            if (Utils.ExtractBool(subfields, 2))
+            {
+                this.RPD_130 = Utils.ReadS1(data) / 256.0;
+            }
+            if (Utils.ExtractBool(subfields, 1))
+            {
+                this.APD_130 = Utils.ReadS1(data) * (360.0 / Math.Pow(2, 14));
+            }
         }
-        //DONE
+        
         private void ParseI048_220(BinaryReader data)
         {
-            this.ADDRESS = Utils.ReadBytesBigEndian(data, 3);
+            this.ADDRESS = data.ReadBytes(3);
         }
-        //DONE
+        
         private void ParseI048_240(BinaryReader data)
         {
-            byte[] identificationBytes = Utils.ReadBytesBigEndian(data, 6);
+            byte[] bytes = Utils.ReadBytesBigEndian(data, 6);
             this.IDENTIFICATION = new byte[8];
             for (int i = 0; i < 8; i++)
             {
-                IDENTIFICATION[7-i] = Utils.ExtractU1(identificationBytes, i * 6, 6);
+                IDENTIFICATION[7-i] = Utils.ExtractU1(bytes, i * 6, 6);
             }
         }
-        //NOT DONE VARIABLE
+        
         private void ParseI048_250(BinaryReader data)
         {
-            
+            byte REP = Utils.ReadU1(data);
+            this.BDSDATA = new byte[REP][];
+            this.BDS = new byte[REP];
+            for (int i = 0; i < REP; i++)
+            {
+                this.BDSDATA[i] = data.ReadBytes(7);
+                this.BDS[i] = Utils.ReadU1(data);
+            }
         }
         
         private void ParseI048_161(BinaryReader data)
@@ -338,8 +370,9 @@ namespace Project2_Code
         
         private void ParseI048_042(BinaryReader data)
         {
-            this.COMPX = Utils.ReadU2(data) / 128.0;
-            this.COMPY = Utils.ReadU2(data) / 128.0;
+            byte[] bytes = Utils.ReadBytesBigEndian(data, 4);
+            this.COMPX = Utils.ExtractS2(bytes, 16, 16) / 128.0;
+            this.COMPY = Utils.ExtractS2(bytes, 0, 16) / 128.0;
         }
         
         private void ParseI048_200(BinaryReader data)
@@ -347,7 +380,7 @@ namespace Project2_Code
             this.GS = Utils.ReadU2(data) * Math.Pow(2, -14);
             this.HEADING = Utils.ReadU2(data) * (360.0 / Math.Pow(2, 16));
         }
-        //DONE
+        
         private void ParseI048_170(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
@@ -370,9 +403,10 @@ namespace Project2_Code
         
         private void ParseI048_110(BinaryReader data)
         {
-            this.HEIGH3D = Utils.ReadU2(data) * 25.0;
+            byte[] bytes = Utils.ReadBytesBigEndian(data, 2);            
+            this.HEIGHT3D = Utils.ExtractS2(bytes, 0, 14) * 25.0;            
         }
-        //DONE
+        
         private void ParseI048_120(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
@@ -395,7 +429,7 @@ namespace Project2_Code
                 }
             }            
         }
-        //DONE
+        
         private void ParseI048_230(BinaryReader data)
         {
             byte octet1 = Utils.ReadU1(data);
@@ -409,13 +443,13 @@ namespace Project2_Code
             this.B1A_230 = Utils.ExtractBool(octet2, 4);
             this.B1B_230 = Utils.ExtractBits(octet2, 0, 3);
         }
-        //DONE
+        
         private void ParseSP_DI(BinaryReader data)
         {
             byte LEN = Utils.ReadU1(data);
             data.ReadBytes(LEN - 1);
         }
-        //DONE
+        
         private void ParseRE_DI(BinaryReader data)
         {
             byte LEN = Utils.ReadU1(data);

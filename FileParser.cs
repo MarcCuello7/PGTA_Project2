@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using System.IO;
 
 namespace Project2_Code
@@ -12,8 +12,9 @@ namespace Project2_Code
         public FileParser(string file)
         {            
             List<CAT48> CAT48list = new List<CAT48>();
-            FileStream stream = File.Create(file);
+            FileStream stream = File.Open(file, FileMode.Open, FileAccess.Read);
             BinaryReader reader = new BinaryReader(stream);
+            int i = 0;
             
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
@@ -27,7 +28,8 @@ namespace Project2_Code
                 else
                 {
                     while (reader.BaseStream.Position-blockStart < LEN)
-                    {
+                    {                        
+                        i++;
                         CAT48 record = new CAT48(reader);
                         CAT48list.Add(record);
                     }
