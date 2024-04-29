@@ -3,11 +3,26 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gmaps="clr-namespace:GMap.NET.WindowsPresentation;assembly=GMap.NET.WindowsPresentation"
         xmlns:local="clr-namespace:Project2_Code"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Button x:Name="button" Content="CHOOSE FILE" Margin="164,73,164,124" Click="button_Click"/>
+    <TabControl RenderTransformOrigin="0.5,0.5">
+        <TabItem x:Name="Loader" Header="Loader" Height="24" Margin="-2,-2,-17,0" VerticalAlignment="Top">
+            <Grid Height="434" Width="800">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="149*"/>
+                    <ColumnDefinition Width="651*"/>
+                </Grid.ColumnDefinitions>
 
-    </Grid>
+                <Button x:Name="button" Content="CHOOSE FILE" Margin="15,73,164,124" Click="button_Click" Grid.Column="1"/>
+
+            </Grid>
+        </TabItem>
+        <TabItem x:Name="Radar" Header="Radar" Height="23" Margin="18,-2,-59,0" VerticalAlignment="Top">
+            <Grid Background="#FFE5E5E5">
+                <gmaps:GMapControl x:Name="gmap" Loaded="gmapLoaded" />
+            </Grid>
+        </TabItem>
+    </TabControl>
 </Window>

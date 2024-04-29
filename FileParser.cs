@@ -35,6 +35,7 @@ namespace Project2_Code
                     }
                 }
             }
+            Debug.WriteLine("Finished");
         }
     }
 }
