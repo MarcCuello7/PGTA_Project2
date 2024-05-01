@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using System.Diagnostics;
+using MultiCAT6.Utils;
 
 namespace Project2_Code
 {
@@ -11,35 +12,35 @@ namespace Project2_Code
         public BitArray FSPEC;
 
         //Data Item I048/010, Data Source Identifier
-        public byte SAC;
-        public byte SIC;
+        public byte? SAC;
+        public byte? SIC;
 
         //Data Item I048/020, Target Report Descriptor
-        public byte TYP_020;
-        public bool SIM_020;
-        public bool RDP_020;
-        public bool SPI_020;
-        public bool RAB_020;
-        public bool TST_020;
-        public bool ERR_020;
-        public bool XPP_020;
-        public bool ME_020;
-        public bool MI_020;
-        public byte FOEFRI_020;
-        public byte ADSB_020;
-        public byte SCN_020;
-        public byte PAI_020;
+        public byte? TYP_020;
+        public bool? SIM_020;
+        public bool? RDP_020;
+        public bool? SPI_020;
+        public bool? RAB_020;
+        public bool? TST_020;
+        public bool? ERR_020;
+        public bool? XPP_020;
+        public bool? ME_020;
+        public bool? MI_020;
+        public byte? FOEFRI_020;
+        public byte? ADSB_020;
+        public byte? SCN_020;
+        public byte? PAI_020;
 
         //Data Item I048/030, Warning/Error Conditions and Target Classification
         //No decodification needed
 
         //Data Item I048/040, Measured Position in Polar Co-ordinates
-        public double RHO;
-        public double THETA;
+        public double? RHO;
+        public double? THETA;
 
         //Data Item I048/042, Calculated Position in Cartesian Co-ordinates
-        public double COMPX;
-        public double COMPY;
+        public double? COMPX;
+        public double? COMPY;
 
         //Data Item I048/050, Mode-2 Code in Octal Representation
         //No decodification needed
@@ -54,57 +55,57 @@ namespace Project2_Code
         //No decodification needed
 
         //Data Item I048/070, Mode-3/A Code in Octal Representation
-        public bool V_070;
-        public bool G_070;
-        public bool L_070;
-        public ushort MODE3AREPLY;
+        public bool? V_070;
+        public bool? G_070;
+        public bool? L_070;
+        public ushort? MODE3AREPLY;
 
         //Data Item I048/080, Mode-3/A Code Confidence Indicator
         //No decodification needed
 
         //Data Item I048/090, Flight Level in Binary Representation
-        public bool V_090;
-        public bool G_090;
-        public double FL;
+        public bool? V_090;
+        public bool? G_090;
+        public double? FL;
 
         //Data Item I048/100, Mode-C Code and Code Confidence Indicator
         //No decodification needed
 
         //Data Item I048/110, Height Measured by a 3D Radar
-        public double HEIGHT3D;
+        public double? HEIGHT3D;
 
         //Data Item I048/120, Radial Doppler Speed
         //No decodification needed
 
         //Data Item I048/130, Radar Plot Characteristics
-        public double SRL_130;
-        public double SRR_130;
-        public sbyte SAM_130;
-        public double PRL_130;
-        public sbyte PAM_130;
-        public double RPD_130;
-        public double APD_130;
+        public double? SRL_130;
+        public double? SRR_130;
+        public sbyte? SAM_130;
+        public double? PRL_130;
+        public sbyte? PAM_130;
+        public double? RPD_130;
+        public double? APD_130;
 
         //Data Item I048/140, Time of Day
-        public double TIME;
+        public double? TIME;
 
         //Data Item I048/161, Track Number
-        public ushort TN;
+        public ushort? TN;
 
         //Data Item I048/170, Track Status
-        public bool CNF_170;
-        public byte RAD_170;
-        public bool DOU_170;
-        public bool MAH_170;
-        public byte CDM_170;
-        public bool TRE_170;
-        public bool GHO_170;
-        public bool SUP_170;
-        public bool TCC_170;
+        public bool? CNF_170;
+        public byte? RAD_170;
+        public bool? DOU_170;
+        public bool? MAH_170;
+        public byte? CDM_170;
+        public bool? TRE_170;
+        public bool? GHO_170;
+        public bool? SUP_170;
+        public bool? TCC_170;
 
         //Data Item I048/200, Calculated Track Velocity in Polar Co-ordinates
-        public double GS;
-        public double HEADING;
+        public double? GS;
+        public double? HEADING;
 
         //Data Item I048/210, Track Quality
         //No decodification needed
@@ -113,14 +114,14 @@ namespace Project2_Code
         public byte[] ADDRESS;
 
         //Data Item I048/230, Communications/ACAS Capability and Flight Status
-        public byte COM_230;
-        public byte STAT_230;
-        public bool SI_230;
-        public bool MSSC_230;
-        public bool ARC_230;
-        public bool AIC_230;
-        public bool B1A_230;
-        public byte B1B_230;
+        public byte? COM_230;
+        public byte? STAT_230;
+        public bool? SI_230;
+        public bool? MSSC_230;
+        public bool? ARC_230;
+        public bool? AIC_230;
+        public bool? B1A_230;
+        public byte? B1B_230;
 
         //Data Item I048/240, Aircraft Identification
         public byte[] IDENTIFICATION;
@@ -138,6 +139,11 @@ namespace Project2_Code
         //RE-Data Item, Reserved Expansion Field
         //No decodification needed
 
+
+        //Additional values
+        public double LATITUDE;
+        public double LONGITUDE;
+        public double HEIGHT;
 
 
         //Enumeration of the category 48 Standard User Application Profile
@@ -222,7 +228,8 @@ namespace Project2_Code
                 {
                     DataItemActions[i](data);
                 }
-            }        
+            }
+            ComputeAdditional();
         }
 
         //HELPER FUNCTIONS
@@ -454,6 +461,40 @@ namespace Project2_Code
         {
             byte LEN = Utils.ReadU1(data);
             data.ReadBytes(LEN - 1);
-        }        
+        }
+
+
+
+        //ADDITIONAL VALUES
+        private void ComputeAdditional()
+        {
+            double radarAltitude = 2.007 + 25.25; //[m]
+            double earthRadius = 6371000.0; //[m]
+            double rho = this.RHO.Value * 1000.0; //[m]
+            if (!this.FL.HasValue) this.FL = 0.0;
+            double flightLevel = this.FL.Value * 100.0 * 0.3048; //[m]
+            double theta = this.THETA.Value * Math.PI / 180.0; //[rad]
+
+            double a = flightLevel + earthRadius;
+            double b = radarAltitude + earthRadius;
+            double c = rho;
+
+            double A = Math.Acos((Math.Pow(a, 2) - Math.Pow(b, 2) - Math.Pow(c, 2)) / (-2.0 * c * b));
+            double elevation = A - Math.PI/2.0;
+
+
+            double radarLat = (41.0 + 18.0 / 60.0 + 2.5284 / 3600.0) * Math.PI / 180.0; //[rad]
+            double radarLong = (2.0 + 06.0 / 60.0 + 7.4095 / 3600.0) * Math.PI / 180.0; //[rad]
+            CoordinatesWGS84 coordinatesWGS = new CoordinatesWGS84(radarLat, radarLong, radarAltitude);
+            CoordinatesPolar coordinatesPolar = new CoordinatesPolar(rho, theta, elevation);
+            GeoUtils geoUtils = new GeoUtils();
+            CoordinatesXYZ coordinatesXYZ = GeoUtils.change_radar_spherical2radar_cartesian(coordinatesPolar);
+            CoordinatesXYZ coordinatesXYZ2 = geoUtils.change_radar_cartesian2geocentric(coordinatesWGS, coordinatesXYZ);
+            CoordinatesWGS84 coordinatesWGS2 = geoUtils.change_geocentric2geodesic(coordinatesXYZ2);
+
+            this.LATITUDE = coordinatesWGS2.Lat * 180.0 / Math.PI;
+            this.LONGITUDE = coordinatesWGS2.Lon * 180.0 / Math.PI;
+            this.HEIGHT = coordinatesWGS2.Height;
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace Project2_Code
     /// </summary>
     public partial class MainWindow : Window
     {
+        AsterixParser parser;
         public MainWindow()
         {
             InitializeComponent();
@@ -35,7 +36,7 @@ namespace Project2_Code
 
             string fileName = openFile.FileName;
 
-            FileParser fichero = new FileParser(fileName);
+            parser = new AsterixParser(fileName);            
         }
 
         private void gmapLoaded(object sender, RoutedEventArgs e)

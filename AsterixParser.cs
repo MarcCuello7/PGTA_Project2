@@ -6,13 +6,14 @@ using System.IO;
 namespace Project2_Code
 {
 
-    public class FileParser
+    public class AsterixParser
 
     {
-        public FileParser(string file)
-        {            
-            List<CAT48> CAT48list = new List<CAT48>();
-            FileStream stream = File.Open(file, FileMode.Open, FileAccess.Read);
+        List<CAT48> CAT48list;
+        public AsterixParser(string file)
+        {
+            CAT48list = new List<CAT48>();
+            FileStream stream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
             BinaryReader reader = new BinaryReader(stream);
             int i = 0;
             
