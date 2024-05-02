@@ -1,19 +1,11 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Threading;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
+using GMap.NET.WindowsPresentation;
+using System.Diagnostics;
 using System.Windows.Shapes;
-using System.IO;
 
 namespace Project2_Code
 {
@@ -22,7 +14,7 @@ namespace Project2_Code
     /// </summary>
     public partial class MainWindow : Window
     {
-        AsterixParser parser;
+        AsterixSimulation simulation;
         public MainWindow()
         {
             InitializeComponent();
@@ -31,12 +23,34 @@ namespace Project2_Code
         private void button_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog();
-
             openFile.ShowDialog();
-
             string fileName = openFile.FileName;
 
-            parser = new AsterixParser(fileName);            
+            AsterixParser parser = new AsterixParser(fileName);
+            simulation = new AsterixSimulation(parser);
+
+            DispatcherTimer simulationTimer = new DispatcherTimer();
+            simulationTimer.Tick += new EventHandler(UpdateSimulation);
+            simulationTimer.Interval = new TimeSpan(0, 0, 1);
+            simulationTimer.Start();
+
+        }
+
+        private void UpdateSimulation(object sender, EventArgs e)
+        {
+            Debug.WriteLine(simulation.time);
+            simulation.Update();
+            gmap.Markers.Clear();
+            foreach (Aircraft a in simulation.aircrafts.Values)
+            {
+                GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
+                Debug.WriteLine(point);
+
+                GMapMarker m = new GMapMarker(point);
+                m.Shape = new Rectangle { Width = 5, Height = 5, Fill = System.Windows.Media.Brushes.Red };
+
+                gmap.Markers.Add(m);
+            }
         }
 
         private void gmapLoaded(object sender, RoutedEventArgs e)
@@ -54,7 +68,8 @@ namespace Project2_Code
             // lets the user drag the map
             gmap.CanDragMap = true;
             // lets the user drag the map with the left mouse button
-            gmap.DragButton = MouseButton.Left;
+            gmap.DragButton = MouseButton.Left;    
+            
         }
     }
 }

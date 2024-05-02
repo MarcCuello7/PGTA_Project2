@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.IO;
-using System.Diagnostics;
+using System.Text;
 using MultiCAT6.Utils;
 
 namespace Project2_Code
@@ -87,10 +87,10 @@ namespace Project2_Code
         public double? APD_130;
 
         //Data Item I048/140, Time of Day
-        public double? TIME;
+        public double TIME;
 
         //Data Item I048/161, Track Number
-        public ushort? TN;
+        public ushort TN;
 
         //Data Item I048/170, Track Status
         public bool? CNF_170;
@@ -124,7 +124,7 @@ namespace Project2_Code
         public byte? B1B_230;
 
         //Data Item I048/240, Aircraft Identification
-        public byte[] IDENTIFICATION;
+        public string? IDENTIFICATION;
 
         //Data Item I048/250, BDS Register Data
         public byte[][] BDSDATA;
@@ -351,11 +351,20 @@ namespace Project2_Code
         private void ParseI048_240(BinaryReader data)
         {
             byte[] bytes = Utils.ReadBytesBigEndian(data, 6);
-            this.IDENTIFICATION = new byte[8];
-            for (int i = 0; i < 8; i++)
+            StringBuilder builder = new StringBuilder();
+            for (int i = 7; i > 0; i--)
             {
-                IDENTIFICATION[7-i] = Utils.ExtractU1(bytes, i * 6, 6);
+                byte b = Utils.ExtractU1(bytes, i * 6, 6);
+                if (0x01 <= b && b <= 0x1A)
+                {
+                    builder.Append((char)(b + 0x40));
+                }
+                else if (0x30 <= b && b <= 0x39)
+                {
+                    builder.Append((char)b);
+                }
             }
+            this.IDENTIFICATION = builder.ToString();            
         }
         
         private void ParseI048_250(BinaryReader data)
