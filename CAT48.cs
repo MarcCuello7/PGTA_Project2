@@ -4,6 +4,7 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using MultiCAT6.Utils;
+using System.Diagnostics;
 
 namespace Project2_Code
 {
@@ -393,7 +394,7 @@ namespace Project2_Code
         
         private void ParseI048_200(BinaryReader data)
         {
-            this.GS = Utils.ReadU2(data) * Math.Pow(2, -14);
+            this.GS = Utils.ReadU2(data) * Math.Pow(2, -14) * 3600;
             this.HEADING = Utils.ReadU2(data) * (360.0 / Math.Pow(2, 16));
         }
         
@@ -473,13 +474,12 @@ namespace Project2_Code
         }
 
 
-
         //ADDITIONAL VALUES
         private void ComputeAdditional()
         {
             double radarAltitude = 2.007 + 25.25; //[m]
             double earthRadius = 6371000.0; //[m]
-            double rho = this.RHO.Value * 1000.0; //[m]
+            double rho = this.RHO.Value * 1852.0; //[m]
             if (!this.FL.HasValue) this.FL = 0.0;
             double flightLevel = this.FL.Value * 100.0 * 0.3048; //[m]
             double theta = this.THETA.Value * Math.PI / 180.0; //[rad]
@@ -487,10 +487,8 @@ namespace Project2_Code
             double a = flightLevel + earthRadius;
             double b = radarAltitude + earthRadius;
             double c = rho;
-
             double A = Math.Acos((Math.Pow(a, 2) - Math.Pow(b, 2) - Math.Pow(c, 2)) / (-2.0 * c * b));
             double elevation = A - Math.PI/2.0;
-
 
             double radarLat = (41.0 + 18.0 / 60.0 + 2.5284 / 3600.0) * Math.PI / 180.0; //[rad]
             double radarLong = (2.0 + 06.0 / 60.0 + 7.4095 / 3600.0) * Math.PI / 180.0; //[rad]

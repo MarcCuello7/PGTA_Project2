@@ -1,11 +1,13 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Windows.Threading;
 using System.Windows;
+using System.Windows.Threading;
 using System.Windows.Input;
-using GMap.NET.WindowsPresentation;
-using System.Diagnostics;
 using System.Windows.Shapes;
+using System.Windows.Controls;
+using System.Diagnostics;
+using GMap.NET.WindowsPresentation;
+
 
 namespace Project2_Code
 {
@@ -44,12 +46,13 @@ namespace Project2_Code
             foreach (Aircraft a in simulation.aircrafts.Values)
             {
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
-                Debug.WriteLine(point);
-
-                GMapMarker m = new GMapMarker(point);
-                m.Shape = new Rectangle { Width = 5, Height = 5, Fill = System.Windows.Media.Brushes.Red };
-
-                gmap.Markers.Add(m);
+                //Debug.WriteLine(point);
+                Rectangle indicator = new Rectangle { Width = 5, Height = 5, Fill = System.Windows.Media.Brushes.Red };
+                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}" };
+                GMapMarker marker = new GMapMarker(point);
+               
+                marker.Shape = indicator;
+                gmap.Markers.Add(marker);
             }
         }
 
@@ -58,11 +61,11 @@ namespace Project2_Code
             GMap.NET.GMaps.Instance.Mode = GMap.NET.AccessMode.ServerAndCache;
             // choose your provider here
             gmap.MapProvider = GMap.NET.MapProviders.OpenStreetMapProvider.Instance;
-            gmap.MinZoom = 12;
-            gmap.MaxZoom = 16;
+            gmap.MinZoom = 7;
+            gmap.MaxZoom = 17;
             // whole world zoom
-            gmap.Zoom = gmap.MinZoom;
-            gmap.CenterPosition = new GMap.NET.PointLatLng(41.3007023333, 2.1020581944);
+            gmap.Zoom = 12;
+            gmap.CenterPosition = new GMap.NET.PointLatLng(41.3007023333, 2.1020581944); // radar coordinates
             // lets the map use the mousewheel to zoom
             gmap.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
             // lets the user drag the map

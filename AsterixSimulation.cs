@@ -7,7 +7,7 @@ namespace Project2_Code
 {
     class AsterixSimulation
     {
-        public int simSpeed;
+        public double simSpeed;
         public int recordIndex;
         public double time;
         public List<CAT48> CAT48list;
@@ -16,7 +16,7 @@ namespace Project2_Code
         public AsterixSimulation(AsterixParser parser)
         {
             this.time = 8 * 3600;
-            this.simSpeed = 1;
+            this.simSpeed = 10;
             this.recordIndex = 0;
             this.aircrafts = new Dictionary<ushort, Aircraft>();
             this.CAT48list = parser.CAT48list;
@@ -41,7 +41,13 @@ namespace Project2_Code
                 }
                 this.recordIndex++;
             }
-            //To do: remove aircrafts with 5 seconds+ unupdated
+            
+            //fix remove aircrafts not only on stale
+            var staleAircrafts = aircrafts.Where(a => this.time - a.Value.lastUpdate >= 10).ToArray();
+            foreach (var a in staleAircrafts)
+            {
+                aircrafts.Remove(a.Key);
+            }                
         }
     }
 
@@ -52,6 +58,7 @@ namespace Project2_Code
         public double latitude;
         public double longitude;
         public double height;
+        public double? flightLevel;
         public double? groundSpeed;
         public double? heading;
         public double lastUpdate;
@@ -62,6 +69,8 @@ namespace Project2_Code
             this.id = record.IDENTIFICATION;
             this.latitude = record.LATITUDE;
             this.longitude = record.LONGITUDE;
+            this.height = record.HEIGHT;
+            this.flightLevel = record.FL;
             this.groundSpeed = record.GS;
             this.heading = record.HEADING;
             this.lastUpdate = record.TIME;
