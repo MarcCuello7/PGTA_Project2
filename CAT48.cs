@@ -125,7 +125,7 @@ namespace Project2_Code
         public byte? B1B_230;
 
         //Data Item I048/240, Aircraft Identification
-        public string? IDENTIFICATION;
+        public string IDENTIFICATION;
 
         //Data Item I048/250, BDS Register Data
         public byte[][] BDSDATA;

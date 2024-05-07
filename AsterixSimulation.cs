@@ -54,13 +54,13 @@ namespace Project2_Code
     class Aircraft
     {
         public ushort trackNumber;
-        public string? id;
+        public string id;
         public double latitude;
         public double longitude;
         public double height;
-        public double? flightLevel;
-        public double? groundSpeed;
-        public double? heading;
+        public double flightLevel;
+        public double groundSpeed;
+        public double heading;
         public double lastUpdate;
 
         public Aircraft(CAT48 record)
@@ -70,9 +70,9 @@ namespace Project2_Code
             this.latitude = record.LATITUDE;
             this.longitude = record.LONGITUDE;
             this.height = record.HEIGHT;
-            this.flightLevel = record.FL;
-            this.groundSpeed = record.GS;
-            this.heading = record.HEADING;
+            this.flightLevel = record.FL ?? -1;
+            this.groundSpeed = record.GS ?? -1;
+            this.heading = record.HEADING ?? -1;
             this.lastUpdate = record.TIME;
         }
 
@@ -80,8 +80,10 @@ namespace Project2_Code
         {
             this.latitude = record.LATITUDE;
             this.longitude = record.LONGITUDE;
-            this.groundSpeed = record.GS;
-            this.heading = record.HEADING;
+            this.height = record.HEIGHT;
+            this.flightLevel = record.FL ?? this.flightLevel;
+            this.groundSpeed = record.GS ?? this.groundSpeed;
+            this.heading = record.HEADING ?? this.heading;
             this.lastUpdate = record.TIME;
         }
     }

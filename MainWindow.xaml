@@ -15,13 +15,28 @@
                     <ColumnDefinition Width="651*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="button" Content="CHOOSE FILE" Margin="15,73,164,124" Click="button_Click" Grid.Column="1"/>
+                <Button x:Name="FileButton" Content="CHOOSE FILE" Margin="15,73,164,124" Click="File_Click" Grid.Column="1"/>
 
             </Grid>
         </TabItem>
         <TabItem x:Name="Radar" Header="Radar" Height="23" Margin="18,-2,-59,0" VerticalAlignment="Top">
             <Grid Background="#FFE5E5E5">
-                <gmaps:GMapControl x:Name="gmap" Loaded="gmapLoaded" />
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Background="#FFFFFFFF" Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="PlayButton" Click="PlayPause_Click" Grid.Column="0" Background="White">
+                        <Image Source="{StaticResource playIcon}"/>
+                    </Button>
+                    <Button x:Name="ResetButton" Content="Reset" Click="Reset_Click" Grid.Column="1"/>
+                </Grid>
+                <gmaps:GMapControl x:Name="gmap" Loaded="gmapLoaded" Grid.Row="1"/>
             </Grid>
         </TabItem>
     </TabControl>

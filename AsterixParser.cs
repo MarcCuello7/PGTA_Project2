@@ -41,10 +41,5 @@ namespace Project2_Code
         //{
 
         //}
-
-        //public bool ExportToKML(string file)
-        //{
-
-        //}
     }
 }

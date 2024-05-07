@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Diagnostics;
 using GMap.NET.WindowsPresentation;
 
@@ -17,24 +18,50 @@ namespace Project2_Code
     public partial class MainWindow : Window
     {
         AsterixSimulation simulation;
+        bool active;
+        DispatcherTimer simulationTimer;
         public MainWindow()
         {
             InitializeComponent();
+            this.simulationTimer = new DispatcherTimer();
+            this.simulationTimer.Tick += new EventHandler(UpdateSimulation);
+            this.simulationTimer.Interval = new TimeSpan(0, 0, 1);            
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void File_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog();
             openFile.ShowDialog();
             string fileName = openFile.FileName;
 
             AsterixParser parser = new AsterixParser(fileName);
-            simulation = new AsterixSimulation(parser);
+            this.simulation = new AsterixSimulation(parser);            
+        }
 
-            DispatcherTimer simulationTimer = new DispatcherTimer();
-            simulationTimer.Tick += new EventHandler(UpdateSimulation);
-            simulationTimer.Interval = new TimeSpan(0, 0, 1);
-            simulationTimer.Start();
+        private void PlayPause_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.simulation == null)
+            {
+                MessageBox.Show("Load a file first.");
+                return;
+            }
+
+            if (!this.active)
+            {
+                simulationTimer.Start();
+                PlayButton.Content = new Image { Source = this.FindResource("pauseIcon") as DrawingImage };
+                this.active = true;
+            }
+            else
+            {
+                simulationTimer.Stop();
+                PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage };
+                this.active = false;
+            }
+        }
+
+        private void Reset_Click(object sender, RoutedEventArgs e)
+        {
 
         }
 
@@ -46,11 +73,24 @@ namespace Project2_Code
             foreach (Aircraft a in simulation.aircrafts.Values)
             {
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
-                //Debug.WriteLine(point);
-                Rectangle indicator = new Rectangle { Width = 5, Height = 5, Fill = System.Windows.Media.Brushes.Red };
+                Polyline indicator = new Polyline();
+                indicator.Points.Add(new Point(10, 0));
+                indicator.Points.Add(new Point(0, 30));
+                indicator.Points.Add(new Point(10, 20));
+                indicator.Points.Add(new Point(20, 30));
+                indicator.Points.Add(new Point(10, 0));
+                indicator.Stroke = Brushes.Red;
+                indicator.Fill = Brushes.Red;
+                indicator.StrokeThickness = 1;
+
+                double scale = 0.3 + 0.07 * (gmap.Zoom - 7);
+                TransformGroup transform = new TransformGroup();
+                transform.Children.Add(new RotateTransform(a.heading));
+                transform.Children.Add(new ScaleTransform(scale, scale));
+                indicator.RenderTransform = transform;
                 indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}" };
+
                 GMapMarker marker = new GMapMarker(point);
-               
                 marker.Shape = indicator;
                 gmap.Markers.Add(marker);
             }
@@ -74,5 +114,7 @@ namespace Project2_Code
             gmap.DragButton = MouseButton.Left;    
             
         }
+
+        
     }
 }
