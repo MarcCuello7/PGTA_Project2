@@ -11,12 +11,10 @@ using GMap.NET.WindowsPresentation;
 
 
 namespace Project2_Code
-{
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+{    
     public partial class MainWindow : Window
     {
+        AsterixParser parser;
         AsterixSimulation simulation;
         bool active;
         DispatcherTimer simulationTimer;
@@ -31,11 +29,17 @@ namespace Project2_Code
         private void File_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog();
+            openFile.Filter = "Asterix files |*.ast";
+            openFile.Title = "Select asterix file";
             openFile.ShowDialog();
             string fileName = openFile.FileName;
 
-            AsterixParser parser = new AsterixParser(fileName);
-            this.simulation = new AsterixSimulation(parser);            
+            if (fileName.Length != 0)
+            {
+                this.parser = new AsterixParser(fileName);
+                this.simulation = new AsterixSimulation(parser);
+                DataGrid.DataContext = parser.CAT48table.DefaultView;
+            }
         }
 
         private void PlayPause_Click(object sender, RoutedEventArgs e)
@@ -74,12 +78,12 @@ namespace Project2_Code
             {
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
                 Polyline indicator = new Polyline();
-                indicator.Points.Add(new Point(10, 0));
-                indicator.Points.Add(new Point(0, 30));
-                indicator.Points.Add(new Point(10, 20));
-                indicator.Points.Add(new Point(20, 30));
-                indicator.Points.Add(new Point(10, 0));
-                indicator.Stroke = Brushes.Red;
+                indicator.Points.Add(new Point(0, -15)); //Arreglar geometria centrada en coordenadas
+                indicator.Points.Add(new Point(-10, 15)); //Decodificar los BDS 4 5 6 
+                indicator.Points.Add(new Point(0, 5));    //Filtros: Transponder fijo = antena en gava academia aviacion
+                indicator.Points.Add(new Point(10, 15));    // Filtro blanco puro todos que no son Modo-S en DI Type020 (4 primeros no)
+                indicator.Points.Add(new Point(0, -15));     // Filtro on ground
+                indicator.Stroke = Brushes.Red;                // boton stop / velocidad / zoom
                 indicator.Fill = Brushes.Red;
                 indicator.StrokeThickness = 1;
 
@@ -88,7 +92,7 @@ namespace Project2_Code
                 transform.Children.Add(new RotateTransform(a.heading));
                 transform.Children.Add(new ScaleTransform(scale, scale));
                 indicator.RenderTransform = transform;
-                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}" };
+                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}\n{a.latitude} : {a.longitude}" };
 
                 GMapMarker marker = new GMapMarker(point);
                 marker.Shape = indicator;
