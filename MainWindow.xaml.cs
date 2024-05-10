@@ -46,19 +46,19 @@ namespace Project2_Code
         {
             if (this.simulation == null)
             {
-                MessageBox.Show("Load a file first.");
+                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             if (!this.active)
             {
-                simulationTimer.Start();
+                this.simulationTimer.Start();
                 PlayButton.Content = new Image { Source = this.FindResource("pauseIcon") as DrawingImage };
                 this.active = true;
             }
             else
             {
-                simulationTimer.Stop();
+                this.simulationTimer.Stop();
                 PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage };
                 this.active = false;
             }
@@ -66,24 +66,47 @@ namespace Project2_Code
 
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
+            if (this.simulation == null)
+            {
+                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            this.simulationTimer.Stop();
+            PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage };
+            this.active = false;
+            this.simulation.Reset();
+            gmap.Markers.Clear();
+        }
 
+        private void ExportCSV_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.simulation == null)
+            {
+                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            SaveFileDialog openFile = new SaveFileDialog();
+            openFile.Filter = "CSV |*.csv";
+            openFile.Title = "Export to CSV";
+            openFile.ShowDialog();
+            string fileName = openFile.FileName;
+            this.parser.ExportToCSV(fileName);
         }
 
         private void UpdateSimulation(object sender, EventArgs e)
         {
-            Debug.WriteLine(simulation.time);
-            simulation.Update();
+            this.simulation.Update();
             gmap.Markers.Clear();
-            foreach (Aircraft a in simulation.aircrafts.Values)
+            foreach (Aircraft a in this.simulation.aircrafts.Values)
             {
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
                 Polyline indicator = new Polyline();
                 indicator.Points.Add(new Point(0, -15)); //Arreglar geometria centrada en coordenadas
-                indicator.Points.Add(new Point(-10, 15)); //Decodificar los BDS 4 5 6 
+                indicator.Points.Add(new Point(-10, 15)); //Decodificar los BDS 4 5 6, adress
                 indicator.Points.Add(new Point(0, 5));    //Filtros: Transponder fijo = antena en gava academia aviacion
                 indicator.Points.Add(new Point(10, 15));    // Filtro blanco puro todos que no son Modo-S en DI Type020 (4 primeros no)
                 indicator.Points.Add(new Point(0, -15));     // Filtro on ground
-                indicator.Stroke = Brushes.Red;                // boton stop / velocidad / zoom
+                indicator.Stroke = Brushes.Red;                // boton stop / velocidad / zoom / ordenar tabla
                 indicator.Fill = Brushes.Red;
                 indicator.StrokeThickness = 1;
 
@@ -117,8 +140,6 @@ namespace Project2_Code
             // lets the user drag the map with the left mouse button
             gmap.DragButton = MouseButton.Left;    
             
-        }
-
-        
+        }        
     }
 }

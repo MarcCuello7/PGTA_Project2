@@ -22,48 +22,28 @@ namespace Project2_Code
         
     }
 
-
     public class CAT48
     {
-        [NoExport()]
         public BitArray FSPEC;
 
         //Data Item I048/010, Data Source Identifier
         public byte? SAC;
         public byte? SIC;
 
-        //Data Item I048/020, Target Report Descriptor        
-        [ExportValues(new string[] { "No detection", "Single PSR detection", "Single PSR detection", "SSR + PSR detection",
-                                     "Single ModeS All-Call", "Single ModeS Roll-Call", "ModeS All-Call + PSR", "ModeS Roll-Call + PSR" })]
+        //Data Item I048/020, Target Report Descriptor 
         public byte? TYP_020;
-        [ExportValues(new string[] { "Actual target report", "Simulated target report" })]
         public bool? SIM_020;
-        [ExportValues(new string[] { "Report from RDP Chain 1", "Report from RDP Chain 2" })]
-        public bool? RDP_020;
-        [ExportValues(new string[] { "Absence of SPI", "Special Position Identification" })]
+        public bool? RDP_020;       
         public bool? SPI_020;
-        [ExportValues(new string[] { "Report from aircraft transponder", "Report from field monitor (fixed transponder)" })]
         public bool? RAB_020;
-        [ExportValues(new string[] { "Real target report", "Test target report" })]
         public bool? TST_020;
-        [ExportValues(new string[] { "No Extended Range", "Extended Range present" })]
         public bool? ERR_020;
-        [ExportValues(new string[] { "No X-Pulse present", "X-Pulse present" })]
         public bool? XPP_020;
-        [ExportValues(new string[] { "No military emergency", "Military emergency" })]
         public bool? ME_020;
-        [ExportValues(new string[] { "No military identification", "Military identification" })]
         public bool? MI_020;
-        [ExportValues(new string[] { "No Mode 4 interrogation", "Friendly target", "Unknown target", "No reply" })]
         public byte? FOEFRI_020;
-        [ExportValues(new string[] { "ADSB not populated and not available", "ADSB not populated and available", 
-                                     "ADSB populated and not available", "ADSB populated and available", })]
         public byte? ADSB_020;
-        [ExportValues(new string[] { "SCN not populated and not available", "SCN not populated and available",
-                                     "SCN populated and not available", "SCN populated and available", })]
         public byte? SCN_020;
-        [ExportValues(new string[] { "PAI not populated and not available", "PAI not populated and available",
-                                     "PAI populated and not available", "PAI populated and available", })]
         public byte? PAI_020;
 
         //Data Item I048/030, Warning/Error Conditions and Target Classification
@@ -90,12 +70,8 @@ namespace Project2_Code
         //No decodification needed
 
         //Data Item I048/070, Mode-3/A Code in Octal Representation
-        [ExportValues(new string[] { "Code validated", "Code not validated" })]
         public bool? V_070;
-        [ExportValues(new string[] { "Default", "Garbled code" })]
         public bool? G_070;
-        [ExportValues(new string[] { "Mode-3/A code derived from the reply of the transponder", 
-                                     "Mode-3/A code not extracted during the last scan" })]
         public bool? L_070;
         public ushort? MODE3AREPLY;
 
@@ -103,9 +79,7 @@ namespace Project2_Code
         //No decodification needed
 
         //Data Item I048/090, Flight Level in Binary Representation
-        [ExportValues(new string[] { "Code validated", "Code not validated" })]
         public bool? V_090;
-        [ExportValues(new string[] { "Default", "Garbled code" })]
         public bool? G_090;
         public double? FL;
 
@@ -134,24 +108,14 @@ namespace Project2_Code
         public ushort TN;
 
         //Data Item I048/170, Track Status
-        [ExportValues(new string[] { "Confirmed Track", "Tentative Track" })]
         public bool? CNF_170;
-        [ExportValues(new string[] { "Combined Track", "PSR Track", "SSR/Mode S Track", "Invalid" })]
         public byte? RAD_170;
-        [ExportValues(new string[] { "Normal confidence", "Low confidence in plot to track association" })]
         public bool? DOU_170;
-        [ExportValues(new string[] { "No horizontal man.sensed", "Horizontal man. sensed" })]
         public bool? MAH_170;
-        [ExportValues(new string[] { "Maintaining", "Climbing", "Descending", "Unknown" })]
         public byte? CDM_170;
-        [ExportValues(new string[] { "Track still alive", "End of track lifetime(last report for this track)" })]
         public bool? TRE_170;
-        [ExportValues(new string[] { "True target track", "Ghost target track" })]
         public bool? GHO_170;
-        [ExportValues(new string[] { "No", "Yes" })]
         public bool? SUP_170;
-        [ExportValues(new string[] { "Tracking performed in so-called 'Radar Plane', i.e. neither slant range correction nor stereographical projection was applied",
-                                     "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Radar Site co-ordinates" })]
         public bool? TCC_170;
 
         //Data Item I048/200, Calculated Track Velocity in Polar Co-ordinates
@@ -165,48 +129,20 @@ namespace Project2_Code
         public byte[] ADDRESS;
 
         //Data Item I048/230, Communications/ACAS Capability and Flight Status
-        [ExportValues(new string[] { "No communications capability (surveillance only)", "Comm. A and Comm. B capability", 
-                                     "Comm. A, Comm. B and Uplink ELM", "Comm. A, Comm. B, Uplink ELM and Downlink ELM", 
-                                     "Level 5 Transponder capability", "Not assigned", "Not assigned", "Not assigned"})]
         public byte? COM_230;
-        [ExportValues(new string[] { "No alert, no SPI, aircraft airborne", "No alert, no SPI, aircraft on ground",
-                                     "Alert, no SPI, aircraft airborne", "Alert, no SPI, aircraft on ground",
-                                     "Alert, SPI, aircraft airborne or on ground", "No alert, SPI, aircraft airborne or on ground", 
-                                     "Not assigned", "Unknown"})]
         public byte? STAT_230;
-        [ExportValues(new string[] { "SI-Code Capable", "II-Code Capable" })]
         public bool? SI_230;
-        [ExportValues(new string[] { "No", "Yes" })]
         public bool? MSSC_230;
-        [ExportValues(new string[] { "100 ft resolution", "25 ft resolution" })]
         public bool? ARC_230;
-        [ExportValues(new string[] { "No", "Yes" })]
         public bool? AIC_230;
-        [ExportValues(new string[] { "ACAS has failed or is on standby", "ACAS is operational" })]
         public bool? B1A_230;
-        [ExportValues(new string[] { "No hybrid surveillance capability and generation of TAs only, RTCA DO-185",
-                                     "Hybrid surveillance capability and generation of TAs only, RTCA DO-185",
-                                     "No hybrid surveillance capability and generation of both TAs and RAs, RTCA DO-185",
-                                     "Hybrid surveillance capability and generation of both TAs and RAs, RTCA DO-185",
-                                     "No hybrid surveillance capability and generation of TAs only, RTCA DO-185A",
-                                     "Hybrid surveillance capability and generation of TAs only, RTCA DO-185A",
-                                     "No hybrid surveillance capability and generation of both TAs and RAs, RTCA DO-185A",
-                                     "Hybrid surveillance capability and generation of both TAs and RAs, RTCA DO-185A",
-                                     "No hybrid surveillance capability and generation of TAs only, RTCA DO-185B",
-                                     "Hybrid surveillance capability and generation of TAs only, RTCA DO-185B",
-                                     "No hybrid surveillance capability and generation of both TAs and RAs, RTCA DO-185B",
-                                     "Hybrid surveillance capability and generation of both TAs and RAs, RTCA DO-185B",
-                                     "Reserved for future versions", "Reserved for future versions",
-                                     "Reserved for future versions", "Reserved for future versions" })]  
         public byte? B1B_230;
 
         //Data Item I048/240, Aircraft Identification
         public string IDENTIFICATION;
 
         //Data Item I048/250, BDS Register Data
-        [NoExport()]
         public byte[][] BDSDATA;
-        [NoExport()]
         public byte[] BDS;
 
         //Data Item I048/260, ACAS Resolution Advisory Report

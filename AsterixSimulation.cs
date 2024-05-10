@@ -49,6 +49,14 @@ namespace Project2_Code
                 aircrafts.Remove(a.Key);
             }                
         }
+
+        public void Reset()
+        {
+            this.time = 8 * 3600;
+            this.simSpeed = 10;
+            this.recordIndex = 0;
+        }
+
     }
 
     class Aircraft

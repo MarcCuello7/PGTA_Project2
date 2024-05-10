@@ -9,7 +9,9 @@
         Title="MainWindow" Height="450" Width="800">
     <TabControl Grid.Column="1" >
         <TabItem x:Name="Loader" Header="Loader" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="54">
-            <Button x:Name="FileButton" Content="CHOOSE FILE" Click="File_Click" />
+            <Button x:Name="FileButton" Click="File_Click" Background="White" BorderThickness="0">
+                <Image Source="{StaticResource uploadIcon}" Width="55" Height="55"/>
+            </Button>
         </TabItem>
         <TabItem x:Name="Radar" Header="Radar" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="54">
             <Grid Background="#FFE5E5E5">
@@ -22,11 +24,18 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="PlayButton" Click="PlayPause_Click" Grid.Column="0" Background="White">
-                        <Image Source="{StaticResource playIcon}"/>
+                    <Button x:Name="PlayButton" Click="PlayPause_Click" Grid.Column="0" Background="White" BorderThickness="0">
+                        <Image Source="{StaticResource playIcon}" Width="30" Height="30"/>
                     </Button>
-                    <Button x:Name="ResetButton" Content="Reset" Click="Reset_Click" Grid.Column="1"/>
+                    <Button x:Name="ResetButton" Click="Reset_Click" Grid.Column="1" Background="White" BorderThickness="0">
+                        <Image Source="{StaticResource resetIcon}" Width="30" Height="30"/>
+                    </Button>
+                    <Button x:Name="ExportCSVButton" Click="ExportCSV_Click" Grid.Column="3" Background="White" BorderThickness="0">
+                        <Image Source="{StaticResource CSVIcon}" Width="30" Height="30"/>
+                    </Button>
                 </Grid>
                 <gmaps:GMapControl x:Name="gmap" Loaded="gmapLoaded" Grid.Row="1"/>
             </Grid>
