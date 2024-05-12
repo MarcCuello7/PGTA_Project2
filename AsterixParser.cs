@@ -27,6 +27,7 @@ namespace Project2_Code
             FileStream stream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
             BinaryReader reader = new BinaryReader(stream);
 
+            int i = 0;
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
                 long blockStart = reader.BaseStream.Position;
@@ -40,7 +41,7 @@ namespace Project2_Code
                 {
                     while (reader.BaseStream.Position - blockStart < LEN)
                     {
-                        CAT48 record = new CAT48(reader);
+                        CAT48 record = new CAT48(reader, i++);
                         CAT48list.Add(record);
                     }
                 }
@@ -57,14 +58,16 @@ namespace Project2_Code
             CAT48table.TableName = type.FullName;
             foreach (FieldInfo field in fields)
             {
+                DataColumn dataColumn;
                 if (!ExportValues.ContainsKey(field.Name))
                 {
-                    CAT48table.Columns.Add(new DataColumn(field.Name, Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType));
+                    dataColumn = new DataColumn(field.Name, Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType);                    
                 }
                 else
                 {
-                    CAT48table.Columns.Add(new DataColumn(field.Name, System.Type.GetType("System.String")));
-                }
+                    dataColumn = new DataColumn(field.Name, System.Type.GetType("System.String"));
+                }                
+                CAT48table.Columns.Add(dataColumn);
             }            
 
             foreach (CAT48 record in CAT48list)
@@ -80,11 +83,10 @@ namespace Project2_Code
                     }
                     else
                     {
-                        byte valueIndex = Convert.ToByte(fields[i].GetValue(record));
-                        values[i] = exportValues[valueIndex];
+                        object value = fields[i].GetValue(record);
+                        values[i] = value == null ? null : exportValues[Convert.ToByte(value)];                        
                     }                    
                 }
-
                 CAT48table.Rows.Add(values);
             }            
         }
@@ -96,13 +98,13 @@ namespace Project2_Code
             IEnumerable<string> columnNames = this.CAT48table.Columns.Cast<DataColumn>().Select(column => column.ColumnName);
             stringBuilder.AppendLine(string.Join(";", columnNames));
 
-            foreach (DataRow row in this.CAT48table.Rows)
+            foreach (DataRowView rowView in this.CAT48table.DefaultView)
             {
-                IEnumerable<string> fields = row.ItemArray.Select(field => field == DBNull.Value ? "N/A" : field.ToString());
+                IEnumerable<string> fields = rowView.Row.ItemArray.Select(field => field == DBNull.Value ? "N/A" : field.ToString());
                 stringBuilder.AppendLine(string.Join(";", fields));
             }
 
-            File.WriteAllText(file, stringBuilder.ToString());            
+            File.WriteAllText(file, stringBuilder.ToString());
         }
 
         public static readonly List<string> NoExport = new List<string> { "FSPEC", "BDSDATA", "BDS" };

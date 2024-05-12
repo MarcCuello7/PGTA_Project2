@@ -7,28 +7,24 @@ using MultiCAT6.Utils;
 using System.Diagnostics;
 
 namespace Project2_Code
-{   
-
-    public class ExportValues : Attribute
-    {
-        public string[] values;
-        public ExportValues(string[] values)
-        {
-            this.values = values;
-        }
-    }
-    public class NoExport : Attribute
-    {
-        
-    }
+{
 
     public class CAT48
     {
         public BitArray FSPEC;
+        public int INDEX;
 
         //Data Item I048/010, Data Source Identifier
         public byte? SAC;
         public byte? SIC;
+
+        //Data Item I048/140, Time of Day
+        public double TIME;
+
+        //Additional values
+        public double LATITUDE;
+        public double LONGITUDE;
+        public double HEIGHT;
 
         //Data Item I048/020, Target Report Descriptor 
         public byte? TYP_020;
@@ -46,28 +42,9 @@ namespace Project2_Code
         public byte? SCN_020;
         public byte? PAI_020;
 
-        //Data Item I048/030, Warning/Error Conditions and Target Classification
-        //No decodification needed
-
         //Data Item I048/040, Measured Position in Polar Co-ordinates
         public double? RHO;
         public double? THETA;
-
-        //Data Item I048/042, Calculated Position in Cartesian Co-ordinates
-        public double? COMPX;
-        public double? COMPY;
-
-        //Data Item I048/050, Mode-2 Code in Octal Representation
-        //No decodification needed
-
-        //Data Item I048/055, Mode-1 Code in Octal Representation
-        //No decodification needed
-
-        //Data Item I048/060, Mode-2 Code Confidence Indicator
-        //No decodification needed
-
-        //Data Item I048/065, Mode-1 Code Confidence Indicator
-        //No decodification needed
 
         //Data Item I048/070, Mode-3/A Code in Octal Representation
         public bool? V_070;
@@ -75,22 +52,10 @@ namespace Project2_Code
         public bool? L_070;
         public ushort? MODE3AREPLY;
 
-        //Data Item I048/080, Mode-3/A Code Confidence Indicator
-        //No decodification needed
-
         //Data Item I048/090, Flight Level in Binary Representation
         public bool? V_090;
         public bool? G_090;
         public double? FL;
-
-        //Data Item I048/100, Mode-C Code and Code Confidence Indicator
-        //No decodification needed
-
-        //Data Item I048/110, Height Measured by a 3D Radar
-        public double? HEIGHT3D;
-
-        //Data Item I048/120, Radial Doppler Speed
-        //No decodification needed
 
         //Data Item I048/130, Radar Plot Characteristics
         public double? SRL_130;
@@ -101,11 +66,26 @@ namespace Project2_Code
         public double? RPD_130;
         public double? APD_130;
 
-        //Data Item I048/140, Time of Day
-        public double TIME;
+        //Data Item I048/220, Aircraft Address
+        public byte[] ADDRESS;
+
+        //Data Item I048/240, Aircraft Identification
+        public string IDENTIFICATION;
+
+        //Data Item I048/250, BDS Register Data
+        public byte[][] BDSDATA;
+        public byte[] BDS;
 
         //Data Item I048/161, Track Number
         public ushort TN;
+
+        //Data Item I048/042, Calculated Position in Cartesian Co-ordinates
+        public double? COMPX;
+        public double? COMPY;
+
+        //Data Item I048/200, Calculated Track Velocity in Polar Co-ordinates
+        public double? GS;
+        public double? HEADING;
 
         //Data Item I048/170, Track Status
         public bool? CNF_170;
@@ -118,15 +98,23 @@ namespace Project2_Code
         public bool? SUP_170;
         public bool? TCC_170;
 
-        //Data Item I048/200, Calculated Track Velocity in Polar Co-ordinates
-        public double? GS;
-        public double? HEADING;
-
         //Data Item I048/210, Track Quality
         //No decodification needed
 
-        //Data Item I048/220, Aircraft Address
-        public byte[] ADDRESS;
+        //Data Item I048/030, Warning/Error Conditions and Target Classification
+        //No decodification needed
+
+        //Data Item I048/080, Mode-3/A Code Confidence Indicator
+        //No decodification needed
+
+        //Data Item I048/100, Mode-C Code and Code Confidence Indicator
+        //No decodification needed
+
+        //Data Item I048/110, Height Measured by a 3D Radar
+        public double? HEIGHT3D;
+
+        //Data Item I048/120, Radial Doppler Speed
+        //No decodification needed
 
         //Data Item I048/230, Communications/ACAS Capability and Flight Status
         public byte? COM_230;
@@ -138,14 +126,19 @@ namespace Project2_Code
         public bool? B1A_230;
         public byte? B1B_230;
 
-        //Data Item I048/240, Aircraft Identification
-        public string IDENTIFICATION;
-
-        //Data Item I048/250, BDS Register Data
-        public byte[][] BDSDATA;
-        public byte[] BDS;
-
         //Data Item I048/260, ACAS Resolution Advisory Report
+        //No decodification needed
+
+        //Data Item I048/055, Mode-1 Code in Octal Representation
+        //No decodification needed
+
+        //Data Item I048/050, Mode-2 Code in Octal Representation
+        //No decodification needed
+
+        //Data Item I048/065, Mode-1 Code Confidence Indicator
+        //No decodification needed
+
+        //Data Item I048/060, Mode-2 Code Confidence Indicator
         //No decodification needed
 
         //SP-Data Item, Special Purpose Field
@@ -153,49 +146,6 @@ namespace Project2_Code
 
         //RE-Data Item, Reserved Expansion Field
         //No decodification needed
-
-
-        //Additional values
-        public double LATITUDE;
-        public double LONGITUDE;
-        public double HEIGHT;
-
-
-        //Enumeration of the category 48 Standard User Application Profile
-        enum UAP 
-        {
-            I048_010 = 0,   // Data Source Identifier
-            I048_140,       // Time-of-Day
-            I048_020,       // Target Report Descriptor
-            I048_040,       // Measured Position in Slant Polar Coordinates
-            I048_070,       // Mode-3/A Code in Octal Representation
-            I048_090,       // Flight Level in Binary Representation
-            I048_130,       // Radar Plot Characteristics
-                            // Field Extension Indicator
-            I048_220 = 8,   // Aircraft Address
-            I048_240,       // Aircraft Identification
-            I048_250,       // Mode S MB Data
-            I048_161,       // Track Number
-            I048_042,       // Calculated Position in Cartesian Coordinates
-            I048_200,       // Calculated Track Velocity in Polar Representation
-            I048_170,       // Track Status
-                            // Field Extension Indicator
-            I048_210 = 16,  // Track Quality
-            I048_030,       // Warning/Error Conditions/Target Classification
-            I048_080,       // Mode-3/A Code Confidence Indicator
-            I048_100,       // Mode-C Code and Confidence Indicator
-            I048_110,       // Height Measured by 3D Radar
-            I048_120,       // Radial Doppler Speed
-            I048_230,       // Communications / ACAS Capability and Flight Status
-                            // Field Extension Indicator
-            I048_260 = 24,  // ACAS Resolution Advisory Report
-            I048_055,       // Mode-1 Code in Octal Representation
-            I048_050,       // Mode-2 Code in Octal Representation
-            I048_065,       // Mode-1 Code Confidence Indicator
-            I048_060,       // Mode-2 Code Confidence Indicator
-            SP_DI,          // Item Special Purpose Field
-            RE_DI,          // Item Reserved Expansion Field
-        }
 
 
 
@@ -218,7 +168,7 @@ namespace Project2_Code
 
 
         //CONSTRUCTOR
-        public CAT48(BinaryReader data)
+        public CAT48(BinaryReader data, int index)
         {
             List<Action<BinaryReader>> DataItemActions = new List<Action<BinaryReader>>
             {
@@ -244,7 +194,7 @@ namespace Project2_Code
                     DataItemActions[i](data);
                 }
             }
-            ComputeAdditional();
+            ComputeAdditional(index);
         }
 
         //HELPER FUNCTIONS
@@ -489,7 +439,7 @@ namespace Project2_Code
 
 
         //ADDITIONAL VALUES
-        private void ComputeAdditional()
+        private void ComputeAdditional(int index)
         {
             double radarAltitude = 2.007 + 25.25; //[m]
             double earthRadius = 6371000.0; //[m]
@@ -516,6 +466,8 @@ namespace Project2_Code
             this.LATITUDE = coordinatesWGS2.Lat * 180.0 / Math.PI;
             this.LONGITUDE = coordinatesWGS2.Lon * 180.0 / Math.PI;
             this.HEIGHT = coordinatesWGS2.Height;
+
+            this.INDEX = index;
         }
     }
 }

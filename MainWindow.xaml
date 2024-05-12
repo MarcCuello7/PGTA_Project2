@@ -7,43 +7,60 @@
         xmlns:local="clr-namespace:Project2_Code"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <TabControl Grid.Column="1" >
-        <TabItem x:Name="Loader" Header="Loader" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="54">
-            <Button x:Name="FileButton" Click="File_Click" Background="White" BorderThickness="0">
-                <Image Source="{StaticResource uploadIcon}" Width="55" Height="55"/>
-            </Button>
-        </TabItem>
-        <TabItem x:Name="Radar" Header="Radar" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="54">
-            <Grid Background="#FFE5E5E5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
 
-                <Grid Background="#FFFFFFFF" Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Button x:Name="PlayButton" Click="PlayPause_Click" Grid.Column="0" Background="White" BorderThickness="0">
-                        <Image Source="{StaticResource playIcon}" Width="30" Height="30"/>
-                    </Button>
-                    <Button x:Name="ResetButton" Click="Reset_Click" Grid.Column="1" Background="White" BorderThickness="0">
-                        <Image Source="{StaticResource resetIcon}" Width="30" Height="30"/>
-                    </Button>
-                    <Button x:Name="ExportCSVButton" Click="ExportCSV_Click" Grid.Column="3" Background="White" BorderThickness="0">
-                        <Image Source="{StaticResource CSVIcon}" Width="30" Height="30"/>
-                    </Button>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Load asterix file" Click="File_Click">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource uploadIcon}"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem x:Name="ExportButton" Header="_Export to CSV" Click="ExportCSV_Click" IsEnabled="False">
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource CSVIcon}"/>
+                    </MenuItem.Icon>                    
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Filters">
+                <MenuItem x:Name="FilterFixed" Header="_Remove fixed transponder" IsCheckable="True" Checked="Filter_Toggle" Unchecked="Filter_Toggle" IsEnabled="False"/>
+                <MenuItem x:Name="FilterPure" Header="_Remove pure white" IsCheckable="True" Checked="Filter_Toggle" Unchecked="Filter_Toggle" IsEnabled="False"/>
+                <MenuItem x:Name="FilterGround" Header="_Remove flights on ground" IsCheckable="True" Checked="Filter_Toggle" Unchecked="Filter_Toggle" IsEnabled="False"/>                
+            </MenuItem>
+        </Menu>
+        <TabControl >
+            <TabItem x:Name="Loader" Header="Loader" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="54">
+                <Button x:Name="FileButton" Click="File_Click" Background="White" BorderThickness="0">
+                    <Image Source="{StaticResource uploadIcon}" Width="57" Height="57"/>
+                </Button>
+            </TabItem>
+            <TabItem x:Name="Radar" Header="Radar" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="54">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Background="#FFFFFFFF" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="PlayButton" Click="PlayPause_Click" Grid.Column="1" Background="White" BorderThickness="0" IsEnabled="False">
+                            <Image Source="{StaticResource playIcon}" Width="30" Height="30"/>
+                        </Button>
+                        <Button x:Name="ResetButton" Click="Reset_Click" Grid.Column="2" Background="White" BorderThickness="0" IsEnabled="False">
+                            <Image Source="{StaticResource resetIcon}" Width="30" Height="30"/>
+                        </Button>                        
+                    </Grid>
+                    <gmaps:GMapControl x:Name="gmap" Loaded="gmapLoaded" Grid.Row="1"/>
                 </Grid>
-                <gmaps:GMapControl x:Name="gmap" Loaded="gmapLoaded" Grid.Row="1"/>
-            </Grid>
-        </TabItem>
-        <TabItem x:Name="Table" Header="Table" VerticalAlignment="Top" HorizontalAlignment="Center" Height="25" Width="54">
-            <DataGrid x:Name="DataGrid" ItemsSource="{Binding}" />
-        </TabItem>
-
-
-    </TabControl>
+            </TabItem>
+            <TabItem x:Name="Table" Header="Table" VerticalAlignment="Top" HorizontalAlignment="Center" Height="25" Width="54">
+                <DataGrid x:Name="DataGrid" ItemsSource="{Binding}" AlternationCount="2" AlternatingRowBackground="Bisque"/>
+            </TabItem>
+        </TabControl>
+    </DockPanel>    
 </Window>

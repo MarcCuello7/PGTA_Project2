@@ -70,6 +70,7 @@ namespace Project2_Code
         public double groundSpeed;
         public double heading;
         public double lastUpdate;
+        public byte type;
 
         public Aircraft(CAT48 record)
         {
@@ -82,6 +83,7 @@ namespace Project2_Code
             this.groundSpeed = record.GS ?? -1;
             this.heading = record.HEADING ?? -1;
             this.lastUpdate = record.TIME;
+            this.type = record.TYP_020 ?? 0;
         }
 
         public void Update(CAT48 record)

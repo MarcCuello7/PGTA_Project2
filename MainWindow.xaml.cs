@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Diagnostics;
+using System.Collections.Generic;
 using GMap.NET.WindowsPresentation;
 
 
@@ -16,8 +16,9 @@ namespace Project2_Code
     {
         AsterixParser parser;
         AsterixSimulation simulation;
-        bool active;
         DispatcherTimer simulationTimer;
+        bool active; 
+
         public MainWindow()
         {
             InitializeComponent();
@@ -39,6 +40,12 @@ namespace Project2_Code
                 this.parser = new AsterixParser(fileName);
                 this.simulation = new AsterixSimulation(parser);
                 DataGrid.DataContext = parser.CAT48table.DefaultView;
+                FilterFixed.IsEnabled = true;
+                FilterPure.IsEnabled = true;
+                FilterGround.IsEnabled = true;
+                PlayButton.IsEnabled = true;
+                ResetButton.IsEnabled = true;
+                ExportButton.IsEnabled = true;
             }
         }
 
@@ -53,13 +60,13 @@ namespace Project2_Code
             if (!this.active)
             {
                 this.simulationTimer.Start();
-                PlayButton.Content = new Image { Source = this.FindResource("pauseIcon") as DrawingImage };
+                PlayButton.Content = new Image { Source = this.FindResource("pauseIcon") as DrawingImage, Width = 30, Height = 30 };
                 this.active = true;
             }
             else
             {
                 this.simulationTimer.Stop();
-                PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage };
+                PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage, Width = 30, Height = 30 };
                 this.active = false;
             }
         }
@@ -90,7 +97,27 @@ namespace Project2_Code
             openFile.Title = "Export to CSV";
             openFile.ShowDialog();
             string fileName = openFile.FileName;
-            this.parser.ExportToCSV(fileName);
+            if (fileName.Length != 0)
+            {
+                this.parser.ExportToCSV(fileName);
+            }        
+        }
+
+        private void Filter_Toggle(object sender, RoutedEventArgs e)
+        {
+            if (this.simulation == null)
+            {
+                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            List<string> activeFilters = new List<string>();
+            if (FilterFixed.IsChecked) activeFilters.Add("TN <> 1838");
+            if (FilterPure.IsChecked) activeFilters.Add("TYP_020 LIKE '*ModeS*'");
+            if (FilterGround.IsChecked) activeFilters.Add("HEIGHT > 1");
+
+            string filter = string.Join(" AND ", activeFilters.ToArray());
+            parser.CAT48table.DefaultView.RowFilter = filter;         
         }
 
         private void UpdateSimulation(object sender, EventArgs e)
@@ -99,29 +126,33 @@ namespace Project2_Code
             gmap.Markers.Clear();
             foreach (Aircraft a in this.simulation.aircrafts.Values)
             {
+                if (FilterFixed.IsChecked && a.trackNumber == 1838) continue;
+                if (FilterPure.IsChecked && a.type < 4) continue;
+                if (FilterGround.IsChecked && a.height < 1) continue;
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
                 Polyline indicator = new Polyline();
-                indicator.Points.Add(new Point(0, -15)); //Arreglar geometria centrada en coordenadas
-                indicator.Points.Add(new Point(-10, 15)); //Decodificar los BDS 4 5 6, adress
-                indicator.Points.Add(new Point(0, 5));    //Filtros: Transponder fijo = antena en gava academia aviacion
-                indicator.Points.Add(new Point(10, 15));    // Filtro blanco puro todos que no son Modo-S en DI Type020 (4 primeros no)
-                indicator.Points.Add(new Point(0, -15));     // Filtro on ground
-                indicator.Stroke = Brushes.Red;                // boton stop / velocidad / zoom / ordenar tabla
-                indicator.Fill = Brushes.Red;
-                indicator.StrokeThickness = 1;
+                indicator.Points.Add(new Point(0, -15));
+                indicator.Points.Add(new Point(-10, 15));           //Decodificar los BDS 4 5 6, adress
+                indicator.Points.Add(new Point(0, 5));              //añadir unidades en cabezal columnas
+                indicator.Points.Add(new Point(10, 15));
+                indicator.Points.Add(new Point(0, -15));              // imprimir en la table los datos en hexadecimal (address) y octal (mode3a replay)
+                indicator.Stroke = Brushes.Red;                        // velocidad / zoom 
+                indicator.Fill = Brushes.Red;                         // mover polyline fuera
+                indicator.StrokeThickness = 1;                         // poner coordenadas en mouse over aircraft en º ' ''
 
                 double scale = 0.3 + 0.07 * (gmap.Zoom - 7);
                 TransformGroup transform = new TransformGroup();
                 transform.Children.Add(new RotateTransform(a.heading));
                 transform.Children.Add(new ScaleTransform(scale, scale));
                 indicator.RenderTransform = transform;
-                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}\n{a.latitude} : {a.longitude}" };
+                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}\n{a.latitude} : {a.longitude} \n{a.height}" };
 
                 GMapMarker marker = new GMapMarker(point);
                 marker.Shape = indicator;
                 gmap.Markers.Add(marker);
             }
         }
+
 
         private void gmapLoaded(object sender, RoutedEventArgs e)
         {
@@ -138,8 +169,7 @@ namespace Project2_Code
             // lets the user drag the map
             gmap.CanDragMap = true;
             // lets the user drag the map with the left mouse button
-            gmap.DragButton = MouseButton.Left;    
-            
+            gmap.DragButton = MouseButton.Left;
         }        
     }
 }
