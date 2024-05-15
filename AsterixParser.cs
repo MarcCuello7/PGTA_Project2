@@ -107,7 +107,7 @@ namespace Project2_Code
             File.WriteAllText(file, stringBuilder.ToString());
         }
 
-        public static readonly List<string> NoExport = new List<string> { "FSPEC", "BDSDATA", "BDS" };
+        public static readonly List<string> NoExport = new List<string> { "FSPEC" };
 
         public static readonly Dictionary<string, string[]> ExportValues = new Dictionary<string, string[]>
         {
@@ -175,6 +175,11 @@ namespace Project2_Code
                                         "Hybrid surveillance capability and generation of both TAs and RAs, RTCA DO-185B",
                                         "Reserved for future versions", "Reserved for future versions",
                                         "Reserved for future versions", "Reserved for future versions" } },
+
+            { "VNAV", new string[] { "Not active", "Active" } },
+            { "ALTHOLD", new string[] { "Not active", "Active" } },
+            { "APPROACH", new string[] { "Not active", "Active" } },
+            { "ALTSOURCE", new string[] { "Unknown", "Aircraft altitude", " FCU/MCP selected altitude", "FMS selected altitude" } },
         };
     }
 }

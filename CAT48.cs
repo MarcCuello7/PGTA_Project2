@@ -72,9 +72,28 @@ namespace Project2_Code
         //Data Item I048/240, Aircraft Identification
         public string IDENTIFICATION;
 
-        //Data Item I048/250, BDS Register Data
-        public byte[][] BDSDATA;
-        public byte[] BDS;
+        //Data Item I048/250, BDS Register Data        
+        public string BDSCODES;
+        //Data Item I048/250, BDS code 4,0
+        public double? MCPALT;
+        public double? FMSALT;
+        public double? BARPRESS;
+        public bool? VNAV;
+        public bool? ALTHOLD;
+        public bool? APPROACH;
+        public byte? ALTSOURCE;
+        //Data Item I048/250, BDS code 5,0
+        public double? RA;
+        public double? TTA;
+        public double? BDSGS;
+        public double? TAR;
+        public double? TAS;
+        //Data Item I048/250, BDS code 4,0
+        public double? MAGHDG;
+        public double? IAS;
+        public double? MACH;
+        public double? BAR;
+        public double? IVV;
 
         //Data Item I048/161, Track Number
         public ushort TN;
@@ -335,13 +354,47 @@ namespace Project2_Code
         private void ParseI048_250(BinaryReader data)
         {
             byte REP = Utils.ReadU1(data);
-            this.BDSDATA = new byte[REP][];
-            this.BDS = new byte[REP];
+            byte[] BDSDATA = new byte[7];
+            byte BDS = new byte();
+            StringBuilder BDSCODES = new StringBuilder(); 
             for (int i = 0; i < REP; i++)
             {
-                this.BDSDATA[i] = data.ReadBytes(7);
-                this.BDS[i] = Utils.ReadU1(data);
+                BDSDATA = Utils.ReadBytesBigEndian(data, 7);
+                BDS = Utils.ReadU1(data);
+                BDSCODES.Append($"BDS:{ Utils.ExtractBits(BDS, 4, 7)},{Utils.ExtractBits(BDS, 0, 3)}{(i < (REP - 1) ? "\n" : "")}");
+                if (BDS == 64)
+                {
+                    if (Utils.ExtractBool(BDSDATA[6], 7)) this.MCPALT = Utils.ExtractU2(BDSDATA, 43, 12) * 16;
+                    if (Utils.ExtractBool(BDSDATA[5], 2)) this.FMSALT = Utils.ExtractU2(BDSDATA, 30, 12) * 16;
+                    if (Utils.ExtractBool(BDSDATA[3], 5)) this.BARPRESS = (Utils.ExtractU2(BDSDATA, 17, 12) * 0.1) + 800.0;
+                    if (Utils.ExtractBool(BDSDATA[1], 0))
+                    {
+                        this.VNAV = Utils.ExtractBool(BDSDATA[0], 7);
+                        this.ALTHOLD = Utils.ExtractBool(BDSDATA[0], 6);
+                        this.APPROACH = Utils.ExtractBool(BDSDATA[0], 5);
+                    }
+                    if (Utils.ExtractBool(BDSDATA[0], 2)) this.ALTSOURCE = Utils.ExtractU1(BDSDATA, 0, 2);
+                }
+
+                else if (BDS == 80)
+                {
+                    if (Utils.ExtractBool(BDSDATA[6], 7)) this.RA = Utils.ExtractS2(BDSDATA, 45, 9) * (45.0 / 256.0);
+                    if (Utils.ExtractBool(BDSDATA[5], 4)) this.TTA = Utils.ExtractS2(BDSDATA, 33, 10) * (90.0 / 512.0);
+                    if (Utils.ExtractBool(BDSDATA[4], 0)) this.BDSGS = Utils.ExtractU2(BDSDATA, 22, 10) * (1024.0 / 512.0);
+                    if (Utils.ExtractBool(BDSDATA[2], 5)) this.TAR = Utils.ExtractS2(BDSDATA, 11, 9) * (8.0 / 256.0);
+                    if (Utils.ExtractBool(BDSDATA[1], 2)) this.TAS = Utils.ExtractU2(BDSDATA, 0, 10) * 2;
+                }
+
+                else if (BDS == 96)
+                {
+                    if (Utils.ExtractBool(BDSDATA[6], 7)) this.MAGHDG = Utils.ExtractS2(BDSDATA, 42, 10) * (90.0 / 512.0);
+                    if (Utils.ExtractBool(BDSDATA[5], 3)) this.IAS = Utils.ExtractU2(BDSDATA, 33, 10);
+                    if (Utils.ExtractBool(BDSDATA[4], 0)) this.MACH = Utils.ExtractU2(BDSDATA, 22, 10) * (2.048 / 512.0);
+                    if (Utils.ExtractBool(BDSDATA[2], 5)) this.BAR = Utils.ExtractS2(BDSDATA, 11, 9) * (8192.0 / 256.0);
+                    if (Utils.ExtractBool(BDSDATA[1], 2)) this.IVV = Utils.ExtractS2(BDSDATA, 0, 9) * (8192.0 / 256.0);
+                }
             }
+            this.BDSCODES = BDSCODES.ToString();
         }
         
         private void ParseI048_161(BinaryReader data)

@@ -79,7 +79,7 @@ namespace Project2_Code
                 return;
             }
             this.simulationTimer.Stop();
-            PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage };
+            PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage, Width = 30, Height = 30 };
             this.active = false;
             this.simulation.Reset();
             gmap.Markers.Clear();
@@ -132,20 +132,20 @@ namespace Project2_Code
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
                 Polyline indicator = new Polyline();
                 indicator.Points.Add(new Point(0, -15));
-                indicator.Points.Add(new Point(-10, 15));           //Decodificar los BDS 4 5 6, adress
+                indicator.Points.Add(new Point(-10, 15));           //Dos valores mal del BSD (MGNHDG and TTA)
                 indicator.Points.Add(new Point(0, 5));              //añadir unidades en cabezal columnas
                 indicator.Points.Add(new Point(10, 15));
                 indicator.Points.Add(new Point(0, -15));              // imprimir en la table los datos en hexadecimal (address) y octal (mode3a replay)
                 indicator.Stroke = Brushes.Red;                        // velocidad / zoom 
                 indicator.Fill = Brushes.Red;                         // mover polyline fuera
-                indicator.StrokeThickness = 1;                         // poner coordenadas en mouse over aircraft en º ' ''
+                indicator.StrokeThickness = 1;                         
 
                 double scale = 0.3 + 0.07 * (gmap.Zoom - 7);
                 TransformGroup transform = new TransformGroup();
                 transform.Children.Add(new RotateTransform(a.heading));
                 transform.Children.Add(new ScaleTransform(scale, scale));
                 indicator.RenderTransform = transform;
-                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}\n{a.latitude} : {a.longitude} \n{a.height}" };
+                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}\n{Utils.DecToDMS(a.latitude, a.longitude)}" };
 
                 GMapMarker marker = new GMapMarker(point);
                 marker.Shape = indicator;
