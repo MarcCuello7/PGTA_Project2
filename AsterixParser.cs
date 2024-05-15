@@ -65,7 +65,7 @@ namespace Project2_Code
                 }
                 else
                 {
-                    dataColumn = new DataColumn(field.Name, System.Type.GetType("System.String"));
+                    dataColumn = new DataColumn(field.Name, typeof(String));
                 }                
                 CAT48table.Columns.Add(dataColumn);
             }            
@@ -75,17 +75,21 @@ namespace Project2_Code
                 object[] values = new object[fields.Length];
                 for (int i = 0; i < fields.Length; i++)
                 {
-                    string[] exportValues;
+                    object exportValues;
                     ExportValues.TryGetValue(fields[i].Name, out exportValues);
+                    object value = fields[i].GetValue(record);
                     if (exportValues == null)
                     {
-                        values[i] = fields[i].GetValue(record);
+                        values[i] = value;
                     }
-                    else
+                    else if (exportValues.GetType().IsArray)
                     {
-                        object value = fields[i].GetValue(record);
-                        values[i] = value == null ? null : exportValues[Convert.ToByte(value)];                        
-                    }                    
+                        values[i] = value == null ? null : ((string[])exportValues)[Convert.ToByte(value)];                        
+                    }
+                    else if (exportValues.GetType() == typeof(Func<object, string>))
+                    {
+                        values[i] = value == null ? null : ((Func<object, string>)exportValues)(value);
+                    }
                 }
                 CAT48table.Rows.Add(values);
             }            
@@ -107,9 +111,10 @@ namespace Project2_Code
             File.WriteAllText(file, stringBuilder.ToString());
         }
 
+
         public static readonly List<string> NoExport = new List<string> { "FSPEC" };
 
-        public static readonly Dictionary<string, string[]> ExportValues = new Dictionary<string, string[]>
+        public static readonly Dictionary<string, object> ExportValues = new Dictionary<string, object>
         {
             { "TYP_020", new string[] { "No detection", "Single PSR detection", "Single PSR detection", "SSR + PSR detection",
                                         "Single ModeS All-Call", "Single ModeS Roll-Call", "ModeS All-Call + PSR", "ModeS Roll-Call + PSR" } },
@@ -180,6 +185,9 @@ namespace Project2_Code
             { "ALTHOLD", new string[] { "Not active", "Active" } },
             { "APPROACH", new string[] { "Not active", "Active" } },
             { "ALTSOURCE", new string[] { "Unknown", "Aircraft altitude", " FCU/MCP selected altitude", "FMS selected altitude" } },
+
+            { "ADDRESS", new Func<object, string>(address => BitConverter.ToString((byte[])address).Replace("-", ""))},
+            { "MODE3AREPLY", new Func<object, string>(mode3A => Convert.ToString((ushort)mode3A, 8)) }
         };
     }
 }

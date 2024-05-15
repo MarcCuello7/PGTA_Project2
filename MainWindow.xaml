@@ -44,16 +44,31 @@
                     <Grid Background="#FFFFFFFF" Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="PlayButton" Click="PlayPause_Click" Grid.Column="1" Background="White" BorderThickness="0" IsEnabled="False">
+                        
+                        <DockPanel VerticalAlignment="Center" Width="Auto" Grid.Column="1">
+                            <Label DockPanel.Dock="Left" FontWeight="Bold">Speed:</Label>
+                            <TextBox x:Name="SpeedBox" Text="{Binding ElementName=SpeedSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" IsEnabled="False"/>
+                            <Slider x:Name="SpeedSlider" VerticalAlignment="Center" Width="Auto" ValueChanged="Speed_ValueChanged" Minimum="1" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="1" IsEnabled="False" />
+                        </DockPanel>
+                        <Button x:Name="PlayButton" Click="PlayPause_Click" Grid.Column="3" Background="White" BorderThickness="0" IsEnabled="False">
                             <Image Source="{StaticResource playIcon}" Width="30" Height="30"/>
                         </Button>
-                        <Button x:Name="ResetButton" Click="Reset_Click" Grid.Column="2" Background="White" BorderThickness="0" IsEnabled="False">
+                        <Button x:Name="ResetButton" Click="Reset_Click" Grid.Column="4" Background="White" BorderThickness="0" IsEnabled="False">
                             <Image Source="{StaticResource resetIcon}" Width="30" Height="30"/>
-                        </Button>                        
+                        </Button>
+                        <DockPanel VerticalAlignment="Center" Width="Auto" Grid.Column="6">
+                            <Label DockPanel.Dock="Left" FontWeight="Bold">Time:</Label>
+                            <TextBox x:Name="TimeBox" Text="{Binding ElementName=TimeSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" IsEnabled="False"/>
+                            <Slider x:Name="TimeSlider" VerticalAlignment="Center" Width="Auto" ValueChanged="Time_ValueChanged" Minimum="0" Maximum="86399" IsSnapToTickEnabled="True" TickFrequency="1" IsEnabled="False" />
+                        </DockPanel>
                     </Grid>
                     <gmaps:GMapControl x:Name="gmap" Loaded="gmapLoaded" Grid.Row="1"/>
                 </Grid>

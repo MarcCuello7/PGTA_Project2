@@ -361,7 +361,7 @@ namespace Project2_Code
             {
                 BDSDATA = Utils.ReadBytesBigEndian(data, 7);
                 BDS = Utils.ReadU1(data);
-                BDSCODES.Append($"BDS:{ Utils.ExtractBits(BDS, 4, 7)},{Utils.ExtractBits(BDS, 0, 3)}{(i < (REP - 1) ? "\n" : "")}");
+                BDSCODES.Append($"BDS: { Utils.ExtractBits(BDS, 4, 7)},{Utils.ExtractBits(BDS, 0, 3)}{(i < (REP - 1) ? " | " : "")}");
                 if (BDS == 64)
                 {
                     if (Utils.ExtractBool(BDSDATA[6], 7)) this.MCPALT = Utils.ExtractU2(BDSDATA, 43, 12) * 16;
@@ -378,20 +378,20 @@ namespace Project2_Code
 
                 else if (BDS == 80)
                 {
-                    if (Utils.ExtractBool(BDSDATA[6], 7)) this.RA = Utils.ExtractS2(BDSDATA, 45, 9) * (45.0 / 256.0);
-                    if (Utils.ExtractBool(BDSDATA[5], 4)) this.TTA = Utils.ExtractS2(BDSDATA, 33, 10) * (90.0 / 512.0);
+                    if (Utils.ExtractBool(BDSDATA[6], 7)) this.RA = Utils.ExtractS2(BDSDATA, 45, 10) * (45.0 / 256.0);
+                    if (Utils.ExtractBool(BDSDATA[5], 4)) this.TTA = Utils.ExtractS2(BDSDATA, 33, 11) * (90.0 / 512.0);
                     if (Utils.ExtractBool(BDSDATA[4], 0)) this.BDSGS = Utils.ExtractU2(BDSDATA, 22, 10) * (1024.0 / 512.0);
-                    if (Utils.ExtractBool(BDSDATA[2], 5)) this.TAR = Utils.ExtractS2(BDSDATA, 11, 9) * (8.0 / 256.0);
+                    if (Utils.ExtractBool(BDSDATA[2], 5)) this.TAR = Utils.ExtractS2(BDSDATA, 11, 10) * (8.0 / 256.0);
                     if (Utils.ExtractBool(BDSDATA[1], 2)) this.TAS = Utils.ExtractU2(BDSDATA, 0, 10) * 2;
                 }
 
                 else if (BDS == 96)
                 {
-                    if (Utils.ExtractBool(BDSDATA[6], 7)) this.MAGHDG = Utils.ExtractS2(BDSDATA, 42, 10) * (90.0 / 512.0);
+                    if (Utils.ExtractBool(BDSDATA[6], 7)) this.MAGHDG = Utils.ExtractS2(BDSDATA, 44, 11) * (90.0 / 512.0);
                     if (Utils.ExtractBool(BDSDATA[5], 3)) this.IAS = Utils.ExtractU2(BDSDATA, 33, 10);
                     if (Utils.ExtractBool(BDSDATA[4], 0)) this.MACH = Utils.ExtractU2(BDSDATA, 22, 10) * (2.048 / 512.0);
-                    if (Utils.ExtractBool(BDSDATA[2], 5)) this.BAR = Utils.ExtractS2(BDSDATA, 11, 9) * (8192.0 / 256.0);
-                    if (Utils.ExtractBool(BDSDATA[1], 2)) this.IVV = Utils.ExtractS2(BDSDATA, 0, 9) * (8192.0 / 256.0);
+                    if (Utils.ExtractBool(BDSDATA[2], 5)) this.BAR = Utils.ExtractS2(BDSDATA, 11, 10) * (8192.0 / 256.0);
+                    if (Utils.ExtractBool(BDSDATA[1], 2)) this.IVV = Utils.ExtractS2(BDSDATA, 0, 10) * (8192.0 / 256.0);
                 }
             }
             this.BDSCODES = BDSCODES.ToString();

@@ -16,7 +16,7 @@ namespace Project2_Code
         public AsterixSimulation(AsterixParser parser)
         {
             this.time = 8 * 3600;
-            this.simSpeed = 10;
+            this.simSpeed = 1;
             this.recordIndex = 0;
             this.aircrafts = new Dictionary<ushort, Aircraft>();
             this.CAT48list = parser.CAT48list;
@@ -53,10 +53,9 @@ namespace Project2_Code
         public void Reset()
         {
             this.time = 8 * 3600;
-            this.simSpeed = 10;
+            this.simSpeed = 1;
             this.recordIndex = 0;
         }
-
     }
 
     class Aircraft

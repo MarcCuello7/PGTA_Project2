@@ -46,17 +46,15 @@ namespace Project2_Code
                 PlayButton.IsEnabled = true;
                 ResetButton.IsEnabled = true;
                 ExportButton.IsEnabled = true;
+                SpeedSlider.IsEnabled = true;
+                TimeSlider.IsEnabled = true;
+                SpeedBox.IsEnabled = true;
+                TimeBox.IsEnabled = true;
             }
         }
 
         private void PlayPause_Click(object sender, RoutedEventArgs e)
         {
-            if (this.simulation == null)
-            {
-                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             if (!this.active)
             {
                 this.simulationTimer.Start();
@@ -73,25 +71,35 @@ namespace Project2_Code
 
         private void Reset_Click(object sender, RoutedEventArgs e)
         {
-            if (this.simulation == null)
-            {
-                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
             this.simulationTimer.Stop();
             PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage, Width = 30, Height = 30 };
+            SpeedSlider.Value = 1;
             this.active = false;
             this.simulation.Reset();
             gmap.Markers.Clear();
         }
 
+        private void Speed_ValueChanged(object sender, RoutedEventArgs e)
+        {
+            if (this.simulation != null)
+            {
+                this.simulation.simSpeed = SpeedSlider.Value;
+            }
+        }
+
+        private void Time_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (this.simulation != null)
+            {
+                gmap.Markers.Clear();
+                this.simulation.Reset();
+                this.simulation.simSpeed = SpeedSlider.Value;
+                this.simulation.time = TimeSlider.Value;
+            }
+        }
+
         private void ExportCSV_Click(object sender, RoutedEventArgs e)
         {
-            if (this.simulation == null)
-            {
-                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
             SaveFileDialog openFile = new SaveFileDialog();
             openFile.Filter = "CSV |*.csv";
             openFile.Title = "Export to CSV";
@@ -105,12 +113,6 @@ namespace Project2_Code
 
         private void Filter_Toggle(object sender, RoutedEventArgs e)
         {
-            if (this.simulation == null)
-            {
-                MessageBox.Show("Load a file first.", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             List<string> activeFilters = new List<string>();
             if (FilterFixed.IsChecked) activeFilters.Add("TN <> 1838");
             if (FilterPure.IsChecked) activeFilters.Add("TYP_020 LIKE '*ModeS*'");
@@ -132,12 +134,12 @@ namespace Project2_Code
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
                 Polyline indicator = new Polyline();
                 indicator.Points.Add(new Point(0, -15));
-                indicator.Points.Add(new Point(-10, 15));           //Dos valores mal del BSD (MGNHDG and TTA)
+                indicator.Points.Add(new Point(-10, 15));           //filtro lat lon //time H M S tabla
                 indicator.Points.Add(new Point(0, 5));              //añadir unidades en cabezal columnas
                 indicator.Points.Add(new Point(10, 15));
-                indicator.Points.Add(new Point(0, -15));              // imprimir en la table los datos en hexadecimal (address) y octal (mode3a replay)
-                indicator.Stroke = Brushes.Red;                        // velocidad / zoom 
-                indicator.Fill = Brushes.Red;                         // mover polyline fuera
+                indicator.Points.Add(new Point(0, -15));
+                indicator.Stroke = Brushes.Red;                    // mode C corrected
+                indicator.Fill = Brushes.Red;                      // mover polyline fuera
                 indicator.StrokeThickness = 1;                         
 
                 double scale = 0.3 + 0.07 * (gmap.Zoom - 7);
