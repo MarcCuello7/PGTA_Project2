@@ -20,6 +20,7 @@ namespace Project2_Code
 
         //Data Item I048/140, Time of Day
         public double TIME;
+        public string TIMEHMS;
 
         //Additional values
         public double LATITUDE;
@@ -50,12 +51,13 @@ namespace Project2_Code
         public bool? V_070;
         public bool? G_070;
         public bool? L_070;
-        public ushort? MODE3AREPLY;
+        public ushort? MODE3A_REPLY;
 
         //Data Item I048/090, Flight Level in Binary Representation
         public bool? V_090;
         public bool? G_090;
         public double? FL;
+        public double? MODEC_CORRECTED;
 
         //Data Item I048/130, Radar Plot Characteristics
         public double? SRL_130;
@@ -88,7 +90,7 @@ namespace Project2_Code
         public double? BDSGS;
         public double? TAR;
         public double? TAS;
-        //Data Item I048/250, BDS code 4,0
+        //Data Item I048/250, BDS code 6,0
         public double? MAGHDG;
         public double? IAS;
         public double? MACH;
@@ -238,6 +240,7 @@ namespace Project2_Code
         {
             byte[] bytes = data.ReadBytes(3);
             this.TIME = ((bytes[0] << 16) | (bytes[1] << 8) | bytes[2]) / 128.0;
+            this.TIMEHMS = TimeSpan.FromSeconds(this.TIME).ToString(@"hh\:mm\:ss\:fff");
         }
         
         private void ParseI048_020(BinaryReader data)
@@ -283,7 +286,7 @@ namespace Project2_Code
             this.V_070 = Utils.ExtractBool(bytes[1], 7);
             this.G_070 = Utils.ExtractBool(bytes[1], 6);
             this.L_070 = Utils.ExtractBool(bytes[1], 5);
-            this.MODE3AREPLY = Utils.ExtractU2(bytes, 0, 12);
+            this.MODE3A_REPLY = Utils.ExtractU2(bytes, 0, 12);
         }
         
         private void ParseI048_090(BinaryReader data)
@@ -519,6 +522,13 @@ namespace Project2_Code
             this.LATITUDE = coordinatesWGS2.Lat * 180.0 / Math.PI;
             this.LONGITUDE = coordinatesWGS2.Lon * 180.0 / Math.PI;
             this.HEIGHT = coordinatesWGS2.Height;
+
+
+            if (this.FL < 60.0 && this.BARPRESS > 1013.0)
+            {
+                this.MODEC_CORRECTED = this.FL * 100.0 + (this.BARPRESS - 1013.2) * 30;
+            }
+
 
             this.INDEX = index;
         }

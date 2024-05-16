@@ -5,10 +5,10 @@ using System.Windows.Threading;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Collections.Generic;
 using GMap.NET.WindowsPresentation;
-
 
 namespace Project2_Code
 {    
@@ -39,7 +39,7 @@ namespace Project2_Code
             {
                 this.parser = new AsterixParser(fileName);
                 this.simulation = new AsterixSimulation(parser);
-                DataGrid.DataContext = parser.CAT48table.DefaultView;
+                DataGrid.DataContext = parser.CAT48table.DefaultView;                
                 FilterFixed.IsEnabled = true;
                 FilterPure.IsEnabled = true;
                 FilterGround.IsEnabled = true;
@@ -48,6 +48,8 @@ namespace Project2_Code
                 ExportButton.IsEnabled = true;
                 SpeedSlider.IsEnabled = true;
                 TimeSlider.IsEnabled = true;
+                TimeSlider.Minimum = Math.Floor(simulation.CAT48list[0].TIME);
+                TimeSlider.Maximum = Math.Ceiling(simulation.CAT48list[^1].TIME);
                 SpeedBox.IsEnabled = true;
                 TimeBox.IsEnabled = true;
             }
@@ -73,7 +75,8 @@ namespace Project2_Code
         {
             this.simulationTimer.Stop();
             PlayButton.Content = new Image { Source = this.FindResource("playIcon") as DrawingImage, Width = 30, Height = 30 };
-            SpeedSlider.Value = 1;
+            SpeedSlider.Value = SpeedSlider.Minimum;
+            TimeSlider.Value = TimeSlider.Minimum;
             this.active = false;
             this.simulation.Reset();
             gmap.Markers.Clear();
@@ -87,7 +90,7 @@ namespace Project2_Code
             }
         }
 
-        private void Time_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Time_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             if (this.simulation != null)
             {
@@ -125,6 +128,7 @@ namespace Project2_Code
         private void UpdateSimulation(object sender, EventArgs e)
         {
             this.simulation.Update();
+            this.TimeSlider.Value = this.simulation.time;
             gmap.Markers.Clear();
             foreach (Aircraft a in this.simulation.aircrafts.Values)
             {
@@ -134,20 +138,20 @@ namespace Project2_Code
                 GMap.NET.PointLatLng point = new GMap.NET.PointLatLng(a.latitude, a.longitude);
                 Polyline indicator = new Polyline();
                 indicator.Points.Add(new Point(0, -15));
-                indicator.Points.Add(new Point(-10, 15));           //filtro lat lon //time H M S tabla
-                indicator.Points.Add(new Point(0, 5));              //añadir unidades en cabezal columnas
+                indicator.Points.Add(new Point(-10, 15));
+                indicator.Points.Add(new Point(0, 5));
                 indicator.Points.Add(new Point(10, 15));
                 indicator.Points.Add(new Point(0, -15));
-                indicator.Stroke = Brushes.Red;                    // mode C corrected
-                indicator.Fill = Brushes.Red;                      // mover polyline fuera
-                indicator.StrokeThickness = 1;                         
+                indicator.Stroke = Brushes.Red;
+                indicator.Fill = Brushes.Red;
+                indicator.StrokeThickness = 1;
 
                 double scale = 0.3 + 0.07 * (gmap.Zoom - 7);
                 TransformGroup transform = new TransformGroup();
                 transform.Children.Add(new RotateTransform(a.heading));
                 transform.Children.Add(new ScaleTransform(scale, scale));
                 indicator.RenderTransform = transform;
-                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{a.groundSpeed} kt\n{a.flightLevel}\n{Utils.DecToDMS(a.latitude, a.longitude)}" };
+                indicator.ToolTip = new ToolTip { Content = $"{a.id}\n{Math.Round(a.groundSpeed, 2)} kt\n{Math.Round(a.height, 2)} m\n{Utils.DecToDMS(a.latitude, a.longitude)}" };
 
                 GMapMarker marker = new GMapMarker(point);
                 marker.Shape = indicator;

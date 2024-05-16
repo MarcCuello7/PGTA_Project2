@@ -11,6 +11,7 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
+        
         <DrawingImage x:Key="pauseIcon">
             <DrawingImage.Drawing>
                 <DrawingGroup ClipGeometry="M0,0 V512 H320 V0 H0 Z">
@@ -18,6 +19,7 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
+        
         <DrawingImage x:Key="resetIcon">
             <DrawingImage.Drawing>
                 <DrawingGroup ClipGeometry="M0,0 V512 H384 V0 H0 Z">
@@ -25,6 +27,7 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
+        
         <DrawingImage x:Key="CSVIcon">
             <DrawingImage.Drawing>
                 <DrawingGroup ClipGeometry="M0,0 V512 H512 V0 H0 Z">
@@ -32,6 +35,7 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
+        
         <DrawingImage x:Key="uploadIcon">
             <DrawingImage.Drawing>
                 <DrawingGroup ClipGeometry="M0,0 V512 H512 V0 H0 Z">
@@ -39,5 +43,7 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
+
+        <local:TimeConverter x:Key="timeConverter"/>
     </Application.Resources>
 </Application>

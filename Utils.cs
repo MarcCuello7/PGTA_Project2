@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Collections;
+using System.Globalization;
+using System.Windows.Data;
+using System.Windows;
 
 namespace Project2_Code
 {
@@ -110,6 +113,22 @@ namespace Project2_Code
         public static string DecToDMS(double lat, double lon)
         {
             return FormattableString.Invariant($"{Math.Abs((int)lat)}°{(int)(Math.Abs(lat) % 1.0 * 60.0)}'{Math.Abs(lat) * 3600.0 % 60:F1}\"{(lat >= 0 ? "N" : "S")}\n{Math.Abs((int)lon)}°{(int)(Math.Abs(lon) % 1.0 * 60.0)}'{Math.Abs(lon) * 3600.0 % 60:F1}\"{(lon >= 0 ? "E" : "W")}");
+        }
+    }
+
+    [ValueConversion(typeof(double), typeof(string))]
+    public class TimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double time = (double)value;
+            return TimeSpan.FromSeconds(time).ToString(@"hh\:mm\:ss");
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            string time = (string)value;
+            return TimeSpan.Parse(time);
         }
     }
 }

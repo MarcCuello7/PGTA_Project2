@@ -15,12 +15,12 @@ namespace Project2_Code
         
         public AsterixSimulation(AsterixParser parser)
         {
-            this.time = 8 * 3600;
             this.simSpeed = 1;
             this.recordIndex = 0;
             this.aircrafts = new Dictionary<ushort, Aircraft>();
             this.CAT48list = parser.CAT48list;
             this.CAT48list = this.CAT48list.OrderBy(o => o.TIME).ToList();
+            this.time = Math.Floor(this.CAT48list[0].TIME);
         }
 
         public void Update()
@@ -52,9 +52,10 @@ namespace Project2_Code
 
         public void Reset()
         {
-            this.time = 8 * 3600;
+            this.time = Math.Floor(this.CAT48list[0].TIME);
             this.simSpeed = 1;
             this.recordIndex = 0;
+            this.aircrafts.Clear();
         }
     }
 
