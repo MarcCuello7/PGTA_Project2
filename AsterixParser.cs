@@ -6,6 +6,7 @@ using System.Data;
 using System.Reflection;
 using System.Linq;
 using System.Text;
+using System.Windows;
 
 namespace Project2_Code
 {
@@ -35,7 +36,7 @@ namespace Project2_Code
                 ushort LEN = Utils.ReadU2(reader);
                 if (CAT != 48)
                 {
-                    Console.WriteLine("Invalid category");
+                    MessageBox.Show("Invalid category", "ERROR", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else
                 {
