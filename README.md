@@ -50,5 +50,6 @@ Since I have done the project alone, there was no clear planning or distribution
   - **May 15, 2024 (8h)**: Corrected BDS interns data wrong values, decodified mode3areplay and address (hexadecimal and octal) and added speed modification on the simulation.
   - **May 16, 2024 (5h)**: Added time slider and decodified ModeC_correcred.
   - **May 17, 2024 (6h)**: At present, finishing to write the README at 6am 18h before finish line. All memory to write yet.
+  - **May 17, 2024 (4h)**: Memory writen.
 
 Total time (estimated) invested in the project: **110h**.
